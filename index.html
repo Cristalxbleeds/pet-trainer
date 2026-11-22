@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yuumi Good Kitty Bell :3</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #18181b;
+      color: #f4f4f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    .card {
+      background: #27272a;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      max-width: 400px;
+      width: 100%;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    input {
+      background: #3f3f46;
+      color: white;
+    }
+    button {
+      background: #ec4899;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.1s, background 0.2s;
+    }
+    button:hover {
+      background: #db2777;
+    }
+    button:active {
+      transform: scale(0.96);
+    }
+    .big-bell {
+      height: 180px;
+      font-size: 2rem;
+      border-radius: 24px;
+      background: linear-gradient(135deg, #f472b6, #a855f7);
+      margin-top: 20px;
+      box-shadow: 0 8px 20px rgba(236, 72, 153, 0.4);
+    }
+    .hidden {
+      display: none;
+    }
+    .status {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: #fbbf24;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="setup-view">
+    <h2>Yuumi Bell Setup :3</h2>
+    <p>Pick your role to get started!</p>
+    <button onclick="showSupport()">I am the Support (Yuumi)</button>
+    <button onclick="showAdc()" style="background: #8b5cf6;">I am the ADC (Bell Clicker)</button>
+  </div>
+
+  <!-- Support / Receiver View -->
+  <div class="card hidden" id="support-view">
+    <h2>Support Receiver :3</h2>
+    <p>1. Pick your custom sound file:</p>
+    <input type="file" id="audio-file" accept="audio/*" onchange="loadAudio(event)">
+    <p>2. Enter a secret room code:</p>
+    <input type="text" id="host-room" placeholder="e.g. goodyuumi123">
+    <button onclick="startHost()">Start Listening</button>
+    <button onclick="playLocalSound()" style="background: #3f3f46; margin-top: 15px;">Test Sound Locally</button>
+    <div class="status" id="host-status">Waiting to start...</div>
+  </div>
+
+  <!-- ADC / Sender View -->
+  <div class="card hidden" id="adc-view">
+    <h2>ADC Bell Clicker :3</h2>
+    <input type="text" id="join-room" placeholder="Enter Support's room code">
+    <button onclick="connectToHost()">Connect to Yuumi</button>
+    <button class="big-bell hidden" id="bell-btn" onclick="ringBell()">🔔 RING BELL</button>
+    <div class="status" id="adc-status">Not connected yet...</div>
+  </div>
+
+  <script>
+    // vawiabwes fow built-in netlify weway and audio pwayback :3
+    let pollTimer = null;
+    let activeRoom = "";
+    let lastCount = null;
+    let customAudio = new Audio();
+
+    // switch to suppowt view :3
+    function showSupport() {
+      document.getElementById('setup-view').classList.add('hidden');
+      document.getElementById('support-view').classList.remove('hidden');
+      console.log("switched to suppowt view :3");
+    }
+
+    // switch to adc view :3
+    function showAdc() {
+      document.getElementById('setup-view').classList.add('hidden');
+      document.getElementById('adc-view').classList.remove('hidden');
+      console.log("switched to adc view :3");
+    }
+
+    // woad wocaw audio fiwe into the bwowsers memowy :3
+    function loadAudio(event) {
+      const file = event.target.files.item(0);
+      if (file) {
+        const url = URL.createObjectURL(file);
+        customAudio.src = url;
+        console.log("woaded custom audio fiwe successfuwwy :3");
+      }
+    }
+
+    // pway the woaded sound effect :3
+    function playLocalSound() {
+      if (!customAudio.src) {
+        alert("Pwease pick an audio fiwe first! :3");
+        return;
+      }
+      customAudio.currentTime = 0;
+      customAudio.play().catch(err => console.log("audio pwayback bwocked by bwowsew :3", err));
+    }
+
+    // stawt suppowt wistening on netlify function :3
+    async function startHost() {
+      const statusEl = document.getElementById('host-status');
+      const roomName = document.getElementById('host-room').value.trim();
+      if (!roomName) {
+        alert("Enter a room code first! :3");
+        return;
+      }
+
+      if (pollTimer) {
+        clearInterval(pollTimer);
+      }
+
+      activeRoom = roomName.toLowerCase().replace(/[^a-z0-9]/g, '');
+      lastCount = null;
+      statusEl.innerText = "Creating room on Netlify... :3";
+
+      try {
+        const res = await fetch("/.netlify/functions/bell?room=" + activeRoom);
+        const data = await res.json();
+        lastCount = data.count;
+        statusEl.innerText = "Listening! Tell ADC to join: " + roomName + " :3";
+        console.log("woom weady on netlify :3", data);
+
+        // check evewy 700ms fow new beww wings :3
+        pollTimer = setInterval(async () => {
+          try {
+            const check = await fetch("/.netlify/functions/bell?room=" + activeRoom);
+            const state = await check.json();
+            if (state.joined) {
+              statusEl.innerText = "ADC connected! Ready for headpats :3";
+            }
+            if (lastCount !== null && state.count > lastCount) {
+              lastCount = state.count;
+              console.log("weceived wing signaw! pwaying sound :3");
+              playLocalSound();
+            }
+          } catch (e) {
+            console.log("powwing hiccup, wetwying :3");
+          }
+        }, 700);
+      } catch (err) {
+        statusEl.innerText = "Error reaching Netlify function! Make sure netlify/functions/bell.js was uploaded :3";
+        console.log("netlify function ewwow :3", err);
+      }
+    }
+
+    // connect adc to the woom :3
+    async function connectToHost() {
+      const statusEl = document.getElementById('adc-status');
+      const roomName = document.getElementById('join-room').value.trim();
+      if (!roomName) {
+        alert("Enter the room code! :3");
+        return;
+      }
+
+      activeRoom = roomName.toLowerCase().replace(/[^a-z0-9]/g, '');
+      statusEl.innerText = "Connecting to Yuumi... :3";
+
+      try {
+        const res = await fetch("/.netlify/functions/bell?room=" + activeRoom, {
+          method: "POST",
+          body: "HELLO"
+        });
+        if (!res.ok) throw new Error("Server error");
+        statusEl.innerText = "Connected! Click the bell when Yuumi does good :3";
+        document.getElementById('bell-btn').classList.remove('hidden');
+        console.log("adc connected to woom :3");
+      } catch (err) {
+        statusEl.innerText = "Failed to connect! Make sure Support uploaded the folder :3";
+        console.log("connect ewwow :3", err);
+      }
+    }
+
+    // send the wing signaw when the giant button is cwicked :3
+    async function ringBell() {
+      const statusEl = document.getElementById('adc-status');
+      if (!activeRoom) {
+        alert("Connect to a room first! :3");
+        return;
+      }
+
+      try {
+        statusEl.innerText = "Ringing Yuumi... :3";
+        await fetch("/.netlify/functions/bell?room=" + activeRoom, {
+          method: "POST",
+          body: "RING"
+        });
+        statusEl.innerText = "Bell rung! Click again anytime :3";
+        console.log("sent wing signaw :3");
+      } catch (err) {
+        statusEl.innerText = "Error sending ring! Try again :3";
+        console.log("wing ewwow :3", err);
+      }
+    }
+  </script>
+</body>
+</html>
