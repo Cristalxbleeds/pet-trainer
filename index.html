@@ -189,7 +189,7 @@
   <script>
     const DEFAULT_SOUND = "goodpet.mp3";
     const isTauriApp = Boolean(window.__TAURI__);
-    const API_BASE = isTauriApp ? "https://vercel.app" : "/api/bell";
+    const API_BASE = isTauriApp ? "https://pettrainer.vercel.app/api/bell" : "/api/bell";
 
     let pollTimer = null;
     let activeRoom = "";
