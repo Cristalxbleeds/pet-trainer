@@ -5,297 +5,748 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Good Pet Bell :3</title>
   <style>
+    :root {
+      --bg-color: #18181b;
+      --card-color: #27272a;
+      --subcard-color: #1f1f23;
+      --input-color: #3f3f46;
+      --accent-color: #ec4899;
+      --accent-hover: #db2777;
+      --bell-grad-1: #f472b6;
+      --bell-grad-2: #a855f7;
+      --text-color: #f4f4f5;
+      --muted-color: #a1a1aa;
+    }
+
     body {
       font-family: system-ui, -apple-system, sans-serif;
-      background-color: #18181b;
-      color: #f4f4f5;
+      background-color: var(--bg-color);
+      color: var(--text-color);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
       margin: 0;
-      padding: 20px;
+      padding: 16px;
       text-align: center;
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
+
     .card {
-      background: #27272a;
-      padding: 2rem;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-      max-width: 400px;
+      background: var(--card-color);
+      padding: 1.5rem;
+      border-radius: 18px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.45);
+      max-width: 420px;
       width: 100%;
+      box-sizing: border-box;
+      transition: background-color 0.25s ease;
     }
-    input, button {
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pill-btn {
+      width: auto;
+      padding: 7px 11px;
+      margin: 0;
+      font-size: 0.82rem;
+      border-radius: 999px;
+      background: var(--input-color);
+      color: var(--text-color);
+      font-weight: 600;
+    }
+
+    .pill-btn:hover {
+      filter: brightness(1.15);
+      background: var(--input-color);
+    }
+
+    .pill-btn.active-pin {
+      background: var(--accent-color);
+      color: #fff;
+    }
+
+    .coin-badge {
+      background: var(--subcard-color);
+      border: 1px solid var(--input-color);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #fbbf24;
+    }
+
+    input[type="text"], input[type="file"], button {
       width: 100%;
       padding: 12px;
-      margin: 8px 0;
-      border-radius: 8px;
+      margin: 7px 0;
+      border-radius: 10px;
       border: none;
       font-size: 1rem;
       box-sizing: border-box;
     }
+
     input[type="text"], input[type="file"] {
-      background: #3f3f46;
-      color: white;
+      background: var(--input-color);
+      color: var(--text-color);
     }
+
     button {
-      background: #ec4899;
+      background: var(--accent-color);
       color: white;
       font-weight: bold;
       cursor: pointer;
-      transition: transform 0.1s, background 0.2s;
+      transition: transform 0.1s, background 0.2s, filter 0.2s;
     }
+
     button:hover {
-      background: #db2777;
+      background: var(--accent-hover);
     }
+
     button:active, button.pressed {
       transform: scale(0.96);
     }
+
+    .row-flex {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .row-flex input[type="text"] {
+      flex: 1;
+    }
+
+    .row-flex button.small-action {
+      width: auto;
+      padding: 12px 14px;
+      background: var(--input-color);
+      font-size: 0.9rem;
+    }
+
     .big-bell {
-      height: 180px;
-      font-size: 1.8rem;
-      border-radius: 24px;
-      background: linear-gradient(135deg, #f472b6, #a855f7);
-      margin-top: 20px;
-      box-shadow: 0 8px 20px rgba(236, 72, 153, 0.4);
+      height: 155px;
+      font-size: 1.65rem;
+      border-radius: 22px;
+      background: linear-gradient(135deg, var(--bell-grad-1), var(--bell-grad-2));
+      margin-top: 14px;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
     }
+
     .hidden {
-      display: none;
+      display: none !important;
     }
+
     .status {
       margin-top: 12px;
       font-size: 0.9rem;
       color: #fbbf24;
       word-break: break-word;
     }
+
     .hint {
-      font-size: 0.85rem;
-      color: #a1a1aa;
-      margin-top: -4px;
-      margin-bottom: 12px;
+      font-size: 0.82rem;
+      color: var(--muted-color);
+      margin-top: -2px;
+      margin-bottom: 10px;
     }
-    .keybind-box {
-      background: #1f1f23;
-      border: 1px solid #3f3f46;
+
+    .sub-box {
+      background: var(--subcard-color);
+      border: 1px solid var(--input-color);
       border-radius: 12px;
       padding: 12px;
-      margin-top: 14px;
+      margin-top: 12px;
+      text-align: left;
     }
-    .keybind-top {
+
+    .sub-box-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.9rem;
-      color: #e4e4e7;
+      font-size: 0.88rem;
+      font-weight: bold;
       margin-bottom: 8px;
     }
-    .keybind-top label {
-      display: flex;
-      align-items: center;
+
+    .combo-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
       gap: 6px;
-      cursor: pointer;
+      margin-bottom: 8px;
     }
-    .keybind-top input[type="checkbox"] {
+
+    .combo-pill {
+      padding: 8px 4px;
+      margin: 0;
+      font-size: 0.8rem;
+      background: var(--input-color);
+      border-radius: 8px;
+    }
+
+    .combo-pill.selected {
+      background: var(--accent-color);
+      box-shadow: 0 0 0 2px #fff inset;
+    }
+
+    .combo-pill.locked {
+      opacity: 0.55;
+      cursor: not-allowed;
+      font-size: 0.72rem;
+    }
+
+    .history-list {
+      max-height: 130px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-color);
+      padding: 7px 10px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+    }
+
+    .history-item span {
+      cursor: pointer;
+      flex: 1;
+      font-weight: 600;
+    }
+
+    .history-item button {
       width: auto;
       margin: 0;
-      cursor: pointer;
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      background: #ef4444;
     }
+
+    .shop-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--subcard-color);
+      border: 1px solid var(--input-color);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+
+    .shop-item button {
+      width: auto;
+      margin: 0;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 10px;
+      background: var(--subcard-color);
+      border-radius: 8px;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+    }
+
     .keybind-row {
       display: flex;
       gap: 8px;
       align-items: center;
     }
+
     .key-badge {
       flex: 1;
-      background: #3f3f46;
-      color: #f472b6;
+      background: var(--input-color);
+      color: var(--bell-grad-1);
       font-weight: bold;
       padding: 10px;
       border-radius: 8px;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
+      text-align: center;
     }
+
     .keybind-row button {
       width: auto;
       margin: 0;
       padding: 10px 12px;
       font-size: 0.85rem;
-      background: #8b5cf6;
     }
-    .keybind-row button:hover {
-      background: #7c3aed;
-    }
-    .keybind-row button.clear-btn {
-      background: #3f3f46;
-    }
-    .keybind-row button.clear-btn:hover {
-      background: #52525b;
-    }
+
     .listening {
       background: #10b981 !important;
       color: #18181b !important;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .slider-row input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent-color);
     }
   </style>
 </head>
 <body>
 
-  <div class="card" id="setup-view">
-    <h2>Good Pet Bell :3</h2>
-    <p>Pick your role to get started!</p>
-    <button onclick="showPet()">I am the Pet (Sound Receiver)</button>
-    <button onclick="showOwner()" style="background: #8b5cf6;">I am the Owner (Bell Clicker)</button>
-  </div>
-
-  <!-- Pet / Receiver View -->
-  <div class="card hidden" id="pet-view">
-    <h2>Pet Receiver :3</h2>
-    <p>Pick a custom sound or use the built-in default:</p>
-    <input type="file" id="audio-file" accept="audio/*" onchange="loadAudio(event)">
-    <div class="hint" id="sound-label">Using default sound (goodpet.mp3) :3</div>
-    <p>Enter a secret room code:</p>
-    <input type="text" id="host-room" placeholder="e.g. goodpuppy123" onkeydown="if(event.key==='Enter'){event.preventDefault();startHost();}">
-    <button onclick="startHost()">Start Listening</button>
-    <button onclick="playLocalSound()" style="background: #3f3f46; margin-top: 15px;">Test Sound Locally</button>
-    <div class="status" id="host-status">Waiting to start...</div>
-  </div>
-
-  <!-- Owner / Sender View -->
-  <div class="card hidden" id="owner-view">
-    <h2>Owner Bell Clicker :3</h2>
-    <input type="text" id="join-room" placeholder="Enter Pet's room code" onkeydown="if(event.key==='Enter'){event.preventDefault();connectToHost();}">
-    <button onclick="connectToHost()">Connect to Pet</button>
-    <button class="big-bell hidden" id="bell-btn" onclick="ringBell()">RING FOR GOOD PET</button>
-
-    <!-- keybind contwows fow keyboawd, mouse, and gwobaw app hotkeys :3 -->
-    <div class="keybind-box hidden" id="keybind-box">
-      <div class="keybind-top">
-        <span id="keybind-title">Clicker Keybind :3</span>
-        <label>
-          <input type="checkbox" id="keybind-enabled" checked onchange="syncGlobalShortcut()">
-          <span>Enabled</span>
-        </label>
+  <div class="card">
+    <!-- Top navigation bar -->
+    <div class="top-bar">
+      <button class="pill-btn hidden" id="back-btn" onclick="goBack()">← Back</button>
+      <div class="coin-badge" id="coin-display">🔔 0 Rings</div>
+      <div style="display: flex; gap: 5px;">
+        <button class="pill-btn hidden" id="pin-btn" onclick="toggleAlwaysOnTop()">📌 Pin</button>
+        <button class="pill-btn" onclick="openView('shop-view')">🎨 Shop</button>
+        <button class="pill-btn" onclick="openView('stats-view')">📊 Stats</button>
       </div>
-      <div class="keybind-row">
-        <div class="key-badge" id="keybind-display">Key: Space</div>
-        <button id="bind-btn" onclick="startBinding(event)">Set Keybind</button>
-        <button class="clear-btn" onclick="clearBinding(event)">Clear</button>
-      </div>
-      <div class="hint" id="keybind-hint" style="margin-top: 8px; margin-bottom: 0;">Works with any keyboard key or mouse button :3</div>
     </div>
 
-    <div class="status" id="owner-status">Not connected yet...</div>
-  </div>
+    <!-- Setup / Role Picker View -->
+    <div id="setup-view">
+      <h2 style="margin-top: 4px;">Good Pet Bell :3</h2>
+      <p style="color: var(--muted-color); font-size: 0.92rem;">Pick your role to get started!</p>
+      <button onclick="openView('pet-view')">I am the Pet (Sound Receiver)</button>
+      <button onclick="openView('owner-view')" style="filter: hue-rotate(-25deg);">I am the Owner (Bell Clicker)</button>
+    </div>
 
+    <!-- Pet / Receiver View -->
+    <div id="pet-view" class="hidden">
+      <h2 style="margin-top: 4px;">Pet Receiver :3</h2>
+      <p style="font-size: 0.9rem; margin-bottom: 6px;">Pick a custom sound or use the built-in default:</p>
+      <input type="file" id="audio-file" accept="audio/*" onchange="loadAudio(event)">
+      <div class="hint" id="sound-label">Using default sound (goodpet.mp3) :3</div>
+
+      <div class="sub-box">
+        <div class="sub-box-header">
+          <span>Volume &amp; Boost :3</span>
+          <span id="vol-label">100%</span>
+        </div>
+        <div class="slider-row">
+          <input type="range" id="vol-slider" min="0" max="200" value="100" oninput="updateVolume(this.value)">
+        </div>
+      </div>
+
+      <p style="font-size: 0.9rem; margin-top: 12px; margin-bottom: 4px;">Enter a secret room code:</p>
+      <div class="row-flex">
+        <input type="text" id="host-room" placeholder="e.g. goodpuppy123" onkeydown="if(event.key==='Enter'){event.preventDefault();startHost();}">
+        <button class="small-action" onclick="toggleHistory('pet-history')">📜</button>
+      </div>
+      <div id="pet-history" class="sub-box hidden">
+        <div class="sub-box-header"><span>Previous Room Codes :3</span></div>
+        <div class="history-list" id="pet-history-list"></div>
+      </div>
+
+      <button onclick="startHost()">Start Listening</button>
+      <button onclick="playLocalSound()" style="background: var(--input-color); margin-top: 8px;">Test Sound Locally</button>
+      <div class="status" id="host-status">Waiting to start...</div>
+    </div>
+
+    <!-- Owner / Sender View -->
+    <div id="owner-view" class="hidden">
+      <h2 style="margin-top: 4px;">Owner Bell Clicker :3</h2>
+      <div class="row-flex">
+        <input type="text" id="join-room" placeholder="Enter Pet's room code" onkeydown="if(event.key==='Enter'){event.preventDefault();connectToHost();}">
+        <button class="small-action" onclick="toggleHistory('owner-history')">📜</button>
+      </div>
+      <div id="owner-history" class="sub-box hidden">
+        <div class="sub-box-header"><span>Previous Room Codes :3</span></div>
+        <div class="history-list" id="owner-history-list"></div>
+      </div>
+
+      <button onclick="connectToHost()">Connect to Pet</button>
+
+      <div id="owner-controls" class="hidden">
+        <div style="font-size: 0.85rem; color: var(--muted-color); margin-top: 8px;">
+          Session Rings: <strong id="session-rings-label" style="color: var(--text-color);">0</strong>
+        </div>
+
+        <button class="big-bell" id="bell-btn" onclick="ringBell(1)">RING FOR GOOD PET</button>
+
+        <!-- Unlockable Session Combo Tiers -->
+        <div class="sub-box">
+          <div class="sub-box-header">
+            <span>Combo Multiplier (Session Unlocks) :3</span>
+          </div>
+          <div class="combo-grid" id="combo-grid"></div>
+          <button id="combo-ring-btn" onclick="triggerSelectedCombo()" style="margin-top: 4px;">Trigger 2x Combo</button>
+        </div>
+
+        <!-- Global Keybind Box -->
+        <div class="sub-box" id="keybind-box">
+          <div class="sub-box-header">
+            <span id="keybind-title">Clicker Keybind :3</span>
+            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+              <input type="checkbox" id="keybind-enabled" checked onchange="syncNativeHotkey()">
+              <span>Enabled</span>
+            </label>
+          </div>
+          <div class="keybind-row">
+            <div class="key-badge" id="keybind-display">Key: Space</div>
+            <button id="bind-btn" onclick="startBinding(event)">Set Keybind</button>
+            <button onclick="clearBinding(event)" style="background: var(--input-color);">Clear</button>
+          </div>
+          <div class="hint" id="keybind-hint" style="margin-top: 8px; margin-bottom: 0;">Works with any keyboard key or mouse button :3</div>
+        </div>
+      </div>
+
+      <div class="status" id="owner-status">Not connected yet...</div>
+    </div>
+
+    <!-- Theme Shop View -->
+    <div id="shop-view" class="hidden">
+      <h2 style="margin-top: 4px;">Theme Shop :3</h2>
+      <p class="hint">Earn 1 Ring per click or receive to unlock themes!</p>
+      <div id="shop-list" style="text-align: left;"></div>
+
+      <div id="custom-theme-editor" class="sub-box hidden">
+        <div class="sub-box-header"><span>Custom Color Studio :3</span></div>
+        <div class="stat-row">
+          <span>Background</span>
+          <input type="color" id="cust-bg" value="#18181b" onchange="applyCustomColors()">
+        </div>
+        <div class="stat-row">
+          <span>Card Surface</span>
+          <input type="color" id="cust-card" value="#27272a" onchange="applyCustomColors()">
+        </div>
+        <div class="stat-row">
+          <span>Accent &amp; Bell</span>
+          <input type="color" id="cust-accent" value="#ec4899" onchange="applyCustomColors()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Menu View -->
+    <div id="stats-view" class="hidden">
+      <h2 style="margin-top: 4px;">Your Stats :3</h2>
+      <div id="stats-list" style="margin-top: 10px;"></div>
+    </div>
+  </div>
   <script>
     const DEFAULT_SOUND = "goodpet.mp3";
     const isTauriApp = Boolean(window.__TAURI__);
     const API_BASE = isTauriApp ? "https://pettrainer.vercel.app/api/bell" : "/api/bell";
 
     let pollTimer = null;
+    let roleTimer = null;
+    let keepAliveCtx = null;
+    let wakeLock = null;
     let activeRoom = "";
+    let activeRole = "setup";
     let lastCount = null;
+    let sessionRings = 0;
+    let selectedCombo = 2;
+    let isPinned = false;
+
     let customAudio = new Audio(DEFAULT_SOUND);
-    let activeTauriShortcut = null;
+    let audioCtx = null;
+    let gainNode = null;
+    let mediaSource = null;
 
-    let currentBind = JSON.parse(localStorage.getItem("goodpet_keybind")) || {
-      type: "keyboard",
-      code: "Space",
-      label: "Key: Space"
+    const defaultData = {
+      coins: 0,
+      sentRings: 0,
+      receivedRings: 0,
+      bestSession: 0,
+      ownerSeconds: 0,
+      petSeconds: 0,
+      unlockedCombos: [2],
+      ownedThemes: ["default"],
+      activeTheme: "default",
+      customColors: { bg: "#18181b", card: "#27272a", accent: "#ec4899" },
+      roomHistory: []
     };
-    let isListeningForBind = false;
 
-    if (isTauriApp) {
-      document.getElementById("keybind-title").innerText = "Global In-Game Keybind :3";
-      document.getElementById("keybind-hint").innerText = "Works globally even inside fullscreen games :3";
+    let userData = Object.assign({}, defaultData, JSON.parse(localStorage.getItem("goodpet_profile") || "{}"));
+    function saveData() {
+      localStorage.setItem("goodpet_profile", JSON.stringify(userData));
+      document.getElementById("coin-display").innerText = "🔔 " + userData.coins + " Rings";
     }
 
-    // convewt web key code to Tauri OS-level shortcut format :3
-    function toTauriShortcut(bind) {
-      if (!bind || bind.type !== "keyboard") return null;
-      const c = bind.code;
-      if (c === "Space") return "Space";
-      if (c.startsWith("Key")) return c.slice(3);
-      if (c.startsWith("Digit")) return c.slice(5);
-      if (/^F\d+$/.test(c)) return c;
-      const map = {
-        Backquote: "`", Minus: "-", Equal: "=", BracketLeft: "[", BracketRight: "]",
-        Backslash: "\\", Semicolon: ";", Quote: "'", Comma: ",", Period: ".", Slash: "/",
-        ArrowUp: "Up", ArrowDown: "Down", ArrowLeft: "Left", ArrowRight: "Right",
-        Enter: "Enter", Tab: "Tab", Backspace: "Backspace", Delete: "Delete",
-        Insert: "Insert", Home: "Home", End: "End", PageUp: "PageUp", PageDown: "PageDown"
-      };
-      return map[c] || null;
-    }
+    const THEMES = [
+      { id: "default", name: "Default Pink :3", price: 0, vars: { bg: "#18181b", card: "#27272a", sub: "#1f1f23", input: "#3f3f46", accent: "#ec4899", hover: "#db2777", g1: "#f472b6", g2: "#a855f7", text: "#f4f4f5" } },
+      { id: "cyber", name: "Cyber Purple", price: 150, vars: { bg: "#130f26", card: "#1e173d", sub: "#171130", input: "#2e245c", accent: "#a855f7", hover: "#9333ea", g1: "#c084fc", g2: "#6366f1", text: "#f5f3ff" } },
+      { id: "strawberry", name: "Strawberry Milk", price: 300, vars: { bg: "#2b1d22", card: "#3d2930", sub: "#332228", input: "#543842", accent: "#fb7185", hover: "#f43f5e", g1: "#fda4af", g2: "#f472b6", text: "#fff1f2" } },
+      { id: "miku", name: "Hatsune Miku 01", price: 500, vars: { bg: "#102024", card: "#183036", sub: "#13262b", input: "#23454d", accent: "#39c5bb", hover: "#2ba89f", g1: "#39c5bb", g2: "#e12885", text: "#ecfeff" } },
+      { id: "trans", name: "Trans Pride 🏳️‍⚧️", price: 750, vars: { bg: "#1a2230", card: "#243042", sub: "#1d2736", input: "#33445c", accent: "#5bcefa", hover: "#3abef2", g1: "#5bcefa", g2: "#f5a9b8", text: "#ffffff" } },
+      { id: "custom", name: "Custom Color Studio", price: 1500, vars: null }
+    ];
 
-    // wegistew OS-level global shortcut when running inside the Windows .exe :3
-    async function syncGlobalShortcut() {
-      if (!isTauriApp || !window.__TAURI__.globalShortcut) return;
-      const gs = window.__TAURI__.globalShortcut;
-      try {
-        if (activeTauriShortcut) {
-          await gs.unregister(activeTauriShortcut);
-          activeTauriShortcut = null;
-        }
-        const enabled = document.getElementById("keybind-enabled").checked;
-        const shortcutStr = toTauriShortcut(currentBind);
-        if (enabled && shortcutStr && activeRoom) {
-          await gs.register(shortcutStr, (event) => {
-            if (event.state === "Pressed") {
-              ringBell();
-            }
-          });
-          activeTauriShortcut = shortcutStr;
-        }
-      } catch (err) {
-        console.log("global shortcut sync info:", err);
+    const COMBO_TIERS = [
+      { mult: 2, req: 0 },
+      { mult: 3, req: 100 },
+      { mult: 5, req: 300 },
+      { mult: 7, req: 500 },
+      { mult: 10, req: 1000 }
+    ];
+
+    function applyTheme(themeId) {
+      const root = document.documentElement;
+      if (themeId === "custom") {
+        const c = userData.customColors;
+        root.style.setProperty("--bg-color", c.bg);
+        root.style.setProperty("--card-color", c.card);
+        root.style.setProperty("--subcard-color", c.bg);
+        root.style.setProperty("--input-color", c.card);
+        root.style.setProperty("--accent-color", c.accent);
+        root.style.setProperty("--accent-hover", c.accent);
+        root.style.setProperty("--bell-grad-1", c.accent);
+        root.style.setProperty("--bell-grad-2", c.accent);
+        root.style.setProperty("--text-color", "#ffffff");
+        document.getElementById("custom-theme-editor").classList.remove("hidden");
+        document.getElementById("cust-bg").value = c.bg;
+        document.getElementById("cust-card").value = c.card;
+        document.getElementById("cust-accent").value = c.accent;
+      } else {
+        document.getElementById("custom-theme-editor").classList.add("hidden");
+        const t = THEMES.find(x => x.id === themeId) || THEMES[0];
+        const v = t.vars;
+        root.style.setProperty("--bg-color", v.bg);
+        root.style.setProperty("--card-color", v.card);
+        root.style.setProperty("--subcard-color", v.sub);
+        root.style.setProperty("--input-color", v.input);
+        root.style.setProperty("--accent-color", v.accent);
+        root.style.setProperty("--accent-hover", v.hover);
+        root.style.setProperty("--bell-grad-1", v.g1);
+        root.style.setProperty("--bell-grad-2", v.g2);
+        root.style.setProperty("--text-color", v.text);
       }
+      userData.activeTheme = themeId;
+      saveData();
+      renderShop();
     }
 
-    function updateBindDisplay() {
-      const display = document.getElementById("keybind-display");
-      display.innerText = currentBind ? currentBind.label : "None set :3";
-      syncGlobalShortcut();
-    }
-    updateBindDisplay();
-    function showPet() {
-      document.getElementById('setup-view').classList.add('hidden');
-      document.getElementById('pet-view').classList.remove('hidden');
+    function applyCustomColors() {
+      userData.customColors = {
+        bg: document.getElementById("cust-bg").value,
+        card: document.getElementById("cust-card").value,
+        accent: document.getElementById("cust-accent").value
+      };
+      applyTheme("custom");
     }
 
-    function showOwner() {
-      document.getElementById('setup-view').classList.add('hidden');
-      document.getElementById('owner-view').classList.remove('hidden');
+    function renderShop() {
+      const list = document.getElementById("shop-list");
+      list.innerHTML = "";
+      THEMES.forEach(t => {
+        const owned = userData.ownedThemes.includes(t.id);
+        const equipped = userData.activeTheme === t.id;
+        const row = document.createElement("div");
+        row.className = "shop-item";
+        row.innerHTML = `<div><strong>${t.name}</strong><div class="hint" style="margin:0;">${owned ? "Unlocked :3" : "Cost: " + t.price + " Rings"}</div></div>`;
+        const btn = document.createElement("button");
+        if (equipped) {
+          btn.innerText = "Equipped";
+          btn.style.background = "#10b981";
+        } else if (owned) {
+          btn.innerText = "Equip";
+          btn.onclick = () => applyTheme(t.id);
+        } else {
+          btn.innerText = "Buy (" + t.price + ")";
+          btn.onclick = () => {
+            if (userData.coins >= t.price) {
+              userData.coins -= t.price;
+              userData.ownedThemes.push(t.id);
+              applyTheme(t.id);
+            } else {
+              alert("Not enough Rings yet! Keep clicking :3");
+            }
+          };
+        }
+        row.appendChild(btn);
+        list.appendChild(row);
+      });
     }
 
+    function formatDuration(sec) {
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = sec % 60;
+      return `${h}h ${m}m ${s}s`;
+    }
+
+    function renderStats() {
+      const list = document.getElementById("stats-list");
+      const rows = [
+        ["Rings Sent (Owner)", userData.sentRings],
+        ["Rings Received (Pet)", userData.receivedRings],
+        ["Best Session Rings", userData.bestSession],
+        ["Unlocked Combos", userData.unlockedCombos.map(x => x + "x").join(", ")],
+        ["Time as Owner", formatDuration(userData.ownerSeconds)],
+        ["Time as Pet", formatDuration(userData.petSeconds)]
+      ];
+      list.innerHTML = rows.map(r => `<div class="stat-row"><span>${r[0]}</span><strong>${r[1]}</strong></div>`).join("");
+    }
+    function openView(viewId) {
+      ["setup-view", "pet-view", "owner-view", "shop-view", "stats-view"].forEach(id => {
+        document.getElementById(id).classList.add("hidden");
+      });
+      document.getElementById(viewId).classList.remove("hidden");
+      document.getElementById("back-btn").classList.toggle("hidden", viewId === "setup-view");
+
+      if (viewId === "shop-view") renderShop();
+      if (viewId === "stats-view") renderStats();
+      if (viewId === "pet-view") activeRole = "pet";
+      else if (viewId === "owner-view") activeRole = "owner";
+      else activeRole = "setup";
+    }
+
+    function goBack() {
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+      stopKeepAlive();
+      activeRoom = "";
+      sessionRings = 0;
+      document.getElementById("owner-controls").classList.add("hidden");
+      document.getElementById("host-status").innerText = "Waiting to start...";
+      document.getElementById("owner-status").innerText = "Not connected yet...";
+      syncNativeHotkey();
+      openView("setup-view");
+    }
+
+    roleTimer = setInterval(() => {
+      if (activeRole === "owner" && activeRoom) {
+        userData.ownerSeconds += 1;
+        saveData();
+      } else if (activeRole === "pet" && activeRoom) {
+        userData.petSeconds += 1;
+        saveData();
+      }
+    }, 1000);
+
+    function saveRoomToHistory(code) {
+      if (!code) return;
+      userData.roomHistory = [code, ...userData.roomHistory.filter(x => x !== code)].slice(0, 10);
+      saveData();
+      renderHistory();
+    }
+
+    function renderHistory() {
+      ["pet", "owner"].forEach(prefix => {
+        const container = document.getElementById(prefix + "-history-list");
+        const input = document.getElementById(prefix === "pet" ? "host-room" : "join-room");
+        if (userData.roomHistory.length === 0) {
+          container.innerHTML = `<div class="hint" style="margin:0;">No saved rooms yet :3</div>`;
+          return;
+        }
+        container.innerHTML = "";
+        userData.roomHistory.forEach(code => {
+          const item = document.createElement("div");
+          item.className = "history-item";
+          const span = document.createElement("span");
+          span.innerText = code;
+          span.onclick = () => {
+            input.value = code;
+            document.getElementById(prefix + "-history").classList.add("hidden");
+          };
+          const del = document.createElement("button");
+          del.innerText = "✕";
+          del.onclick = () => {
+            userData.roomHistory = userData.roomHistory.filter(x => x !== code);
+            saveData();
+            renderHistory();
+          };
+          item.appendChild(span);
+          item.appendChild(del);
+          container.appendChild(item);
+        });
+      });
+    }
+
+    function toggleHistory(id) {
+      renderHistory();
+      document.getElementById(id).classList.toggle("hidden");
+    }
+
+    if (userData.roomHistory.length > 0) {
+      document.getElementById("host-room").value = userData.roomHistory.at(0);
+      document.getElementById("join-room").value = userData.roomHistory.at(0);
+    }
+
+    function ensureAudioBoost() {
+      if (!audioCtx) {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new Ctx();
+        mediaSource = audioCtx.createMediaElementSource(customAudio);
+        gainNode = audioCtx.createGain();
+        mediaSource.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+      }
+      if (audioCtx.state === "suspended") audioCtx.resume();
+    }
+
+    function updateVolume(val) {
+      document.getElementById("vol-label").innerText = val + "%";
+      ensureAudioBoost();
+      gainNode.gain.value = Number(val) / 100;
+    }
+
+    async function startKeepAlive() {
+      try {
+        if (!keepAliveCtx) {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          keepAliveCtx = new Ctx();
+          const osc = keepAliveCtx.createOscillator();
+          const gain = keepAliveCtx.createGain();
+          gain.gain.value = 0.0001;
+          osc.connect(gain);
+          gain.connect(keepAliveCtx.destination);
+          osc.start();
+        }
+        if (keepAliveCtx.state === "suspended") await keepAliveCtx.resume();
+        if ("wakeLock" in navigator) {
+          wakeLock = await navigator.wakeLock.request("screen");
+        }
+      } catch (e) {}
+    }
+
+    function stopKeepAlive() {
+      if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
+    }
     function loadAudio(event) {
       const file = event.target.files.item(0);
       if (file) {
-        const url = URL.createObjectURL(file);
-        customAudio.src = url;
-        document.getElementById('sound-label').innerText = "Loaded custom sound: " + file.name + " :3";
+        customAudio.src = URL.createObjectURL(file);
+        document.getElementById("sound-label").innerText = "Loaded custom sound: " + file.name + " :3";
       }
     }
 
     function playLocalSound() {
-      if (!customAudio.src) {
-        alert("Pwease pick an audio fiwe first! :3");
-        return;
-      }
+      ensureAudioBoost();
       customAudio.currentTime = 0;
-      customAudio.play().catch(err => console.log("audio pwayback bwocked:", err));
+      customAudio.play().catch(err => console.log("audio blocked:", err));
+      document.title = "🔔 GOOD PET! :3";
+      setTimeout(() => { document.title = "Good Pet Bell :3"; }, 1200);
     }
 
     async function startHost() {
-      const statusEl = document.getElementById('host-status');
-      const roomName = document.getElementById('host-room').value.trim();
-      if (!roomName) {
-        alert("Enter a room code first! :3");
-        return;
-      }
+      const statusEl = document.getElementById("host-status");
+      const roomName = document.getElementById("host-room").value.trim();
+      if (!roomName) { alert("Enter a room code first! :3"); return; }
 
       if (pollTimer) clearInterval(pollTimer);
+      await startKeepAlive();
+      ensureAudioBoost();
 
-      activeRoom = roomName.toLowerCase().replace(/[^a-z0-9]/g, '');
+      activeRoom = roomName.toLowerCase().replace(/[^a-z0-9]/g, "");
+      saveRoomToHistory(activeRoom);
       lastCount = null;
       statusEl.innerText = "Creating room... :3";
 
@@ -303,7 +754,7 @@
         const res = await fetch(API_BASE + "?room=" + activeRoom);
         const data = await res.json();
         lastCount = data.count;
-        statusEl.innerText = "Listening! Tell Owner to join: " + roomName + " :3";
+        statusEl.innerText = "Listening! Tell Owner to join: " + activeRoom + " :3";
 
         pollTimer = setInterval(async () => {
           try {
@@ -313,70 +764,162 @@
               statusEl.innerText = "Owner connected! Ready for headpats :3";
             }
             if (lastCount !== null && state.count > lastCount) {
+              const diff = state.count - lastCount;
               lastCount = state.count;
+              userData.receivedRings += diff;
+              userData.coins += diff;
+              saveData();
               playLocalSound();
             }
           } catch (e) {}
-        }, 700);
+        }, 650);
       } catch (err) {
         statusEl.innerText = "Error reaching server! Check internet :3";
       }
     }
 
     async function connectToHost() {
-      const statusEl = document.getElementById('owner-status');
-      const roomName = document.getElementById('join-room').value.trim();
-      if (!roomName) {
-        alert("Enter the room code! :3");
-        return;
-      }
+      const statusEl = document.getElementById("owner-status");
+      const roomName = document.getElementById("join-room").value.trim();
+      if (!roomName) { alert("Enter the room code! :3"); return; }
 
-      activeRoom = roomName.toLowerCase().replace(/[^a-z0-9]/g, '');
+      activeRoom = roomName.toLowerCase().replace(/[^a-z0-9]/g, "");
+      saveRoomToHistory(activeRoom);
+      sessionRings = 0;
+      document.getElementById("session-rings-label").innerText = "0";
       statusEl.innerText = "Connecting to Pet... :3";
 
       try {
-        const res = await fetch(API_BASE + "?room=" + activeRoom, {
-          method: "POST",
-          body: "HELLO"
-        });
+        const res = await fetch(API_BASE + "?room=" + activeRoom, { method: "POST", body: "HELLO" });
         if (!res.ok) throw new Error("Server error");
         statusEl.innerText = "Connected! Click the bell or press your keybind :3";
-        document.getElementById('bell-btn').classList.remove('hidden');
-        document.getElementById('keybind-box').classList.remove('hidden');
-        syncGlobalShortcut();
+        document.getElementById("owner-controls").classList.remove("hidden");
+        renderCombos();
+        syncNativeHotkey();
       } catch (err) {
         statusEl.innerText = "Failed to connect! Check room code :3";
       }
     }
 
-    async function ringBell() {
-      const statusEl = document.getElementById('owner-status');
-      const bellBtn = document.getElementById('bell-btn');
-      if (!activeRoom) {
-        alert("Connect to a room first! :3");
-        return;
-      }
+    function renderCombos() {
+      const grid = document.getElementById("combo-grid");
+      grid.innerHTML = "";
+      COMBO_TIERS.forEach(tier => {
+        const unlocked = userData.unlockedCombos.includes(tier.mult);
+        const btn = document.createElement("button");
+        btn.className = "combo-pill" + (selectedCombo === tier.mult ? " selected" : "") + (!unlocked ? " locked" : "");
+        btn.innerText = unlocked ? `${tier.mult}x` : `${tier.mult}x 🔒${tier.req}`;
+        btn.onclick = () => {
+          if (!unlocked) {
+            alert(`Reach ${tier.req} rings in a single session to unlock ${tier.mult}x permanently! :3`);
+            return;
+          }
+          selectedCombo = tier.mult;
+          document.getElementById("combo-ring-btn").innerText = `Trigger ${selectedCombo}x Combo`;
+          renderCombos();
+        };
+        grid.appendChild(btn);
+      });
+    }
 
-      bellBtn.classList.add('pressed');
-      setTimeout(() => bellBtn.classList.remove('pressed'), 120);
+    async function triggerSelectedCombo() {
+      for (let i = 0; i < selectedCombo; i++) {
+        ringBell(1);
+        await new Promise(r => setTimeout(r, 140));
+      }
+    }
+
+    async function ringBell(amount = 1) {
+      const statusEl = document.getElementById("owner-status");
+      const bellBtn = document.getElementById("bell-btn");
+      if (!activeRoom) return;
+
+      bellBtn.classList.add("pressed");
+      setTimeout(() => bellBtn.classList.remove("pressed"), 110);
+
+      sessionRings += amount;
+      userData.sentRings += amount;
+      userData.coins += amount;
+      if (sessionRings > userData.bestSession) userData.bestSession = sessionRings;
+
+      let newlyUnlocked = false;
+      COMBO_TIERS.forEach(t => {
+        if (sessionRings >= t.req && !userData.unlockedCombos.includes(t.mult)) {
+          userData.unlockedCombos.push(t.mult);
+          newlyUnlocked = true;
+        }
+      });
+      saveData();
+      document.getElementById("session-rings-label").innerText = sessionRings;
+      if (newlyUnlocked) renderCombos();
 
       try {
         statusEl.innerText = "Ringing Pet... :3";
-        await fetch(API_BASE + "?room=" + activeRoom, {
-          method: "POST",
-          body: "RING"
-        });
+        await fetch(API_BASE + "?room=" + activeRoom, { method: "POST", body: "RING" });
         statusEl.innerText = "Bell rung! Click or press keybind anytime :3";
       } catch (err) {
         statusEl.innerText = "Error sending ring! Try again :3";
       }
     }
+    if (isTauriApp) {
+      document.getElementById("pin-btn").classList.remove("hidden");
+      document.getElementById("keybind-title").innerText = "Global In-Game Keybind :3";
+      document.getElementById("keybind-hint").innerText = "Works globally inside fullscreen games & system tray :3";
+
+      if (window.__TAURI__.event) {
+        window.__TAURI__.event.listen("native-bell-ring", () => {
+          if (activeRole === "owner" && activeRoom) {
+            ringBell(1);
+          }
+        });
+      }
+    }
+
+    async function toggleAlwaysOnTop() {
+      if (!isTauriApp || !window.__TAURI__.window) return;
+      isPinned = !isPinned;
+      const win = window.__TAURI__.window.getCurrentWindow();
+      await win.setAlwaysOnTop(isPinned);
+      document.getElementById("pin-btn").classList.toggle("active-pin", isPinned);
+    }
+
+    let currentBind = JSON.parse(localStorage.getItem("goodpet_keybind")) || {
+      type: "keyboard",
+      code: "Space",
+      vk: 0x20,
+      label: "Key: Space"
+    };
+    let isListeningForBind = false;
+
+    function browserMouseToVk(btn) {
+      if (btn === 0) return 0x01;
+      if (btn === 2) return 0x02;
+      if (btn === 1) return 0x04;
+      if (btn === 3) return 0x05;
+      if (btn === 4) return 0x06;
+      return null;
+    }
+
+    async function syncNativeHotkey() {
+      if (!isTauriApp || !window.__TAURI__.core) return;
+      const enabled = document.getElementById("keybind-enabled").checked && Boolean(activeRoom) && activeRole === "owner";
+      const vk = currentBind && currentBind.vk ? currentBind.vk : null;
+      try {
+        await window.__TAURI__.core.invoke("set_native_hotkey", { vkCode: vk, enabled: enabled });
+      } catch (e) {}
+    }
+
+    function updateBindDisplay() {
+      document.getElementById("keybind-display").innerText = currentBind ? currentBind.label : "None set :3";
+      syncNativeHotkey();
+    }
+    updateBindDisplay();
 
     function startBinding(event) {
       event.stopPropagation();
       isListeningForBind = true;
       const bindBtn = document.getElementById("bind-btn");
-      bindBtn.innerText = "Press any key...";
+      bindBtn.innerText = "Press key/mouse...";
       bindBtn.classList.add("listening");
     }
 
@@ -401,15 +944,15 @@
     }
 
     window.addEventListener("keydown", (event) => {
-      const ownerView = document.getElementById("owner-view");
-      if (ownerView.classList.contains("hidden")) return;
+      if (activeRole !== "owner") return;
 
       if (isListeningForBind) {
         event.preventDefault();
-        const keyName = event.code === "Space" ? "Space" : event.key.toUpperCase();
+        const keyName = event.code === "Space" ? "Space" : (event.key === "Dead" ? event.code : event.key.toUpperCase());
         currentBind = {
           type: "keyboard",
           code: event.code,
+          vk: event.keyCode,
           label: "Key: " + keyName
         };
         localStorage.setItem("goodpet_keybind", JSON.stringify(currentBind));
@@ -428,22 +971,21 @@
 
       if (currentBind.type === "keyboard" && event.code === currentBind.code) {
         event.preventDefault();
-        ringBell();
+        ringBell(1);
       }
     });
 
     window.addEventListener("mousedown", (event) => {
-      const ownerView = document.getElementById("owner-view");
-      if (ownerView.classList.contains("hidden")) return;
+      if (activeRole !== "owner") return;
 
       if (isListeningForBind) {
         event.preventDefault();
         event.stopPropagation();
-        const label = formatMouseButton(event.button);
         currentBind = {
           type: "mouse",
           button: event.button,
-          label: label
+          vk: browserMouseToVk(event.button),
+          label: formatMouseButton(event.button)
         };
         localStorage.setItem("goodpet_keybind", JSON.stringify(currentBind));
         isListeningForBind = false;
@@ -454,6 +996,7 @@
         return;
       }
 
+      if (isTauriApp) return;
       const tag = event.target.tagName;
       if (tag === "BUTTON" || tag === "INPUT" || tag === "LABEL") return;
       if (!document.getElementById("keybind-enabled").checked) return;
@@ -461,13 +1004,12 @@
 
       if (currentBind.type === "mouse" && event.button === currentBind.button) {
         event.preventDefault();
-        ringBell();
+        ringBell(1);
       }
     });
 
     window.addEventListener("contextmenu", (event) => {
-      const ownerView = document.getElementById("owner-view");
-      if (!ownerView.classList.contains("hidden") &&
+      if (activeRole === "owner" &&
           document.getElementById("keybind-enabled").checked &&
           currentBind &&
           currentBind.type === "mouse" &&
@@ -475,6 +1017,8 @@
         event.preventDefault();
       }
     });
+
+    applyTheme(userData.activeTheme || "default");
   </script>
 </body>
 </html>
