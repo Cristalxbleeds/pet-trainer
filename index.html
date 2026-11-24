@@ -166,12 +166,12 @@
     <button onclick="connectToHost()">Connect to Pet</button>
     <button class="big-bell hidden" id="bell-btn" onclick="ringBell()">RING FOR GOOD PET</button>
 
-    <!-- keybind contwows fow keyboawd and mouse buttons :3 -->
+    <!-- keybind contwows fow keyboawd, mouse, and gwobaw app hotkeys :3 -->
     <div class="keybind-box hidden" id="keybind-box">
       <div class="keybind-top">
-        <span>Clicker Keybind :3</span>
+        <span id="keybind-title">Clicker Keybind :3</span>
         <label>
-          <input type="checkbox" id="keybind-enabled" checked>
+          <input type="checkbox" id="keybind-enabled" checked onchange="syncGlobalShortcut()">
           <span>Enabled</span>
         </label>
       </div>
@@ -180,23 +180,23 @@
         <button id="bind-btn" onclick="startBinding(event)">Set Keybind</button>
         <button class="clear-btn" onclick="clearBinding(event)">Clear</button>
       </div>
-      <div class="hint" style="margin-top: 8px; margin-bottom: 0;">Works with any keyboard key or mouse button :3</div>
+      <div class="hint" id="keybind-hint" style="margin-top: 8px; margin-bottom: 0;">Works with any keyboard key or mouse button :3</div>
     </div>
 
     <div class="status" id="owner-status">Not connected yet...</div>
   </div>
 
   <script>
-    // defauwt mp3 fiwe upwoaded to the woot of the github wepo :3
     const DEFAULT_SOUND = "goodpet.mp3";
+    const isTauriApp = Boolean(window.__TAURI__);
+    const API_BASE = isTauriApp ? "https://vercel.app" : "/api/bell";
 
-    // vawiabwes fow built-in netlify weway and audio pwayback :3
     let pollTimer = null;
     let activeRoom = "";
     let lastCount = null;
     let customAudio = new Audio(DEFAULT_SOUND);
+    let activeTauriShortcut = null;
 
-    // keybind state saved in wocawStowage so it wemembews youw favowite button :3
     let currentBind = JSON.parse(localStorage.getItem("goodpet_keybind")) || {
       type: "keyboard",
       code: "Space",
@@ -204,49 +204,87 @@
     };
     let isListeningForBind = false;
 
-    // update the keybind wabew on scween :3
+    if (isTauriApp) {
+      document.getElementById("keybind-title").innerText = "Global In-Game Keybind :3";
+      document.getElementById("keybind-hint").innerText = "Works globally even inside fullscreen games :3";
+    }
+
+    // convewt web key code to Tauri OS-level shortcut format :3
+    function toTauriShortcut(bind) {
+      if (!bind || bind.type !== "keyboard") return null;
+      const c = bind.code;
+      if (c === "Space") return "Space";
+      if (c.startsWith("Key")) return c.slice(3);
+      if (c.startsWith("Digit")) return c.slice(5);
+      if (/^F\d+$/.test(c)) return c;
+      const map = {
+        Backquote: "`", Minus: "-", Equal: "=", BracketLeft: "[", BracketRight: "]",
+        Backslash: "\\", Semicolon: ";", Quote: "'", Comma: ",", Period: ".", Slash: "/",
+        ArrowUp: "Up", ArrowDown: "Down", ArrowLeft: "Left", ArrowRight: "Right",
+        Enter: "Enter", Tab: "Tab", Backspace: "Backspace", Delete: "Delete",
+        Insert: "Insert", Home: "Home", End: "End", PageUp: "PageUp", PageDown: "PageDown"
+      };
+      return map[c] || null;
+    }
+
+    // wegistew OS-level global shortcut when running inside the Windows .exe :3
+    async function syncGlobalShortcut() {
+      if (!isTauriApp || !window.__TAURI__.globalShortcut) return;
+      const gs = window.__TAURI__.globalShortcut;
+      try {
+        if (activeTauriShortcut) {
+          await gs.unregister(activeTauriShortcut);
+          activeTauriShortcut = null;
+        }
+        const enabled = document.getElementById("keybind-enabled").checked;
+        const shortcutStr = toTauriShortcut(currentBind);
+        if (enabled && shortcutStr && activeRoom) {
+          await gs.register(shortcutStr, (event) => {
+            if (event.state === "Pressed") {
+              ringBell();
+            }
+          });
+          activeTauriShortcut = shortcutStr;
+        }
+      } catch (err) {
+        console.log("global shortcut sync info:", err);
+      }
+    }
+
     function updateBindDisplay() {
       const display = document.getElementById("keybind-display");
       display.innerText = currentBind ? currentBind.label : "None set :3";
+      syncGlobalShortcut();
     }
     updateBindDisplay();
-
-    // switch to pet view :3
     function showPet() {
       document.getElementById('setup-view').classList.add('hidden');
       document.getElementById('pet-view').classList.remove('hidden');
-      console.log("switched to pet view with defauwt sound weady :3");
     }
 
-    // switch to ownew view :3
     function showOwner() {
       document.getElementById('setup-view').classList.add('hidden');
       document.getElementById('owner-view').classList.remove('hidden');
-      console.log("switched to ownew view :3");
     }
 
-    // woad wocaw audio fiwe into the bwowsers memowy :3
     function loadAudio(event) {
       const file = event.target.files.item(0);
       if (file) {
         const url = URL.createObjectURL(file);
         customAudio.src = url;
         document.getElementById('sound-label').innerText = "Loaded custom sound: " + file.name + " :3";
-        console.log("woaded custom audio fiwe successfuwwy :3");
       }
     }
 
-    // pway the woaded sound effect :3
     function playLocalSound() {
       if (!customAudio.src) {
         alert("Pwease pick an audio fiwe first! :3");
         return;
       }
       customAudio.currentTime = 0;
-      customAudio.play().catch(err => console.log("audio pwayback bwocked by bwowsew :3", err));
+      customAudio.play().catch(err => console.log("audio pwayback bwocked:", err));
     }
 
-    // stawt pet wistening on netlify function :3
     async function startHost() {
       const statusEl = document.getElementById('host-status');
       const roomName = document.getElementById('host-room').value.trim();
@@ -255,44 +293,36 @@
         return;
       }
 
-      if (pollTimer) {
-        clearInterval(pollTimer);
-      }
+      if (pollTimer) clearInterval(pollTimer);
 
       activeRoom = roomName.toLowerCase().replace(/[^a-z0-9]/g, '');
       lastCount = null;
       statusEl.innerText = "Creating room... :3";
 
       try {
-        const res = await fetch("/api/bell?room=" + activeRoom);
+        const res = await fetch(API_BASE + "?room=" + activeRoom);
         const data = await res.json();
         lastCount = data.count;
         statusEl.innerText = "Listening! Tell Owner to join: " + roomName + " :3";
-        console.log("woom weady on netlify :3", data);
 
-        // check evewy 700ms fow new beww wings :3
         pollTimer = setInterval(async () => {
           try {
-            const check = await fetch("/api/bell?room=" + activeRoom);
+            const check = await fetch(API_BASE + "?room=" + activeRoom);
             const state = await check.json();
             if (state.joined) {
               statusEl.innerText = "Owner connected! Ready for headpats :3";
             }
             if (lastCount !== null && state.count > lastCount) {
               lastCount = state.count;
-              console.log("weceived wing signaw! pwaying sound :3");
               playLocalSound();
             }
-          } catch (e) {
-            console.log("powwing hiccup, wetwying :3");
-          }
+          } catch (e) {}
         }, 700);
       } catch (err) {
-        statusEl.innerText = "Error reaching server! Try refreshing :3";
-        console.log("netlify function ewwow :3", err);
+        statusEl.innerText = "Error reaching server! Check internet :3";
       }
     }
-    // connect ownew to the woom :3
+
     async function connectToHost() {
       const statusEl = document.getElementById('owner-status');
       const roomName = document.getElementById('join-room').value.trim();
@@ -305,7 +335,7 @@
       statusEl.innerText = "Connecting to Pet... :3";
 
       try {
-        const res = await fetch("/api/bell?room=" + activeRoom, {
+        const res = await fetch(API_BASE + "?room=" + activeRoom, {
           method: "POST",
           body: "HELLO"
         });
@@ -313,14 +343,12 @@
         statusEl.innerText = "Connected! Click the bell or press your keybind :3";
         document.getElementById('bell-btn').classList.remove('hidden');
         document.getElementById('keybind-box').classList.remove('hidden');
-        console.log("ownew connected to woom :3");
+        syncGlobalShortcut();
       } catch (err) {
         statusEl.innerText = "Failed to connect! Check room code :3";
-        console.log("connect ewwow :3", err);
       }
     }
 
-    // send the wing signaw when the giant button ow keybind is twiggowed :3
     async function ringBell() {
       const statusEl = document.getElementById('owner-status');
       const bellBtn = document.getElementById('bell-btn');
@@ -329,35 +357,29 @@
         return;
       }
 
-      // wittwe visual squish animation on the giant button :3
       bellBtn.classList.add('pressed');
       setTimeout(() => bellBtn.classList.remove('pressed'), 120);
 
       try {
         statusEl.innerText = "Ringing Pet... :3";
-        await fetch("/api/bell?room=" + activeRoom, {
+        await fetch(API_BASE + "?room=" + activeRoom, {
           method: "POST",
           body: "RING"
         });
         statusEl.innerText = "Bell rung! Click or press keybind anytime :3";
-        console.log("sent wing signaw :3");
       } catch (err) {
         statusEl.innerText = "Error sending ring! Try again :3";
-        console.log("wing ewwow :3", err);
       }
     }
 
-    // stawt wistening fow a new keyboawd key ow mouse button :3
     function startBinding(event) {
       event.stopPropagation();
       isListeningForBind = true;
       const bindBtn = document.getElementById("bind-btn");
-      bindBtn.innerText = "Press any key/mouse...";
+      bindBtn.innerText = "Press any key...";
       bindBtn.classList.add("listening");
-      console.log("wistening fow new keybind input :3");
     }
 
-    // cweaw the saved keybind :3
     function clearBinding(event) {
       event.stopPropagation();
       isListeningForBind = false;
@@ -367,10 +389,8 @@
       bindBtn.innerText = "Set Keybind";
       bindBtn.classList.remove("listening");
       updateBindDisplay();
-      console.log("cweawed custom keybind :3");
     }
 
-    // tuwn mouse button numbew into a cute weadabwe name :3
     function formatMouseButton(button) {
       if (button === 0) return "Mouse Left";
       if (button === 1) return "Mouse Middle";
@@ -380,12 +400,10 @@
       return "Mouse Button " + button;
     }
 
-    // handle keyboawd pwesses fow binding ow winging the beww :3
     window.addEventListener("keydown", (event) => {
       const ownerView = document.getElementById("owner-view");
       if (ownerView.classList.contains("hidden")) return;
 
-      // captuwe new keyboawd keybind :3
       if (isListeningForBind) {
         event.preventDefault();
         const keyName = event.code === "Space" ? "Space" : event.key.toUpperCase();
@@ -400,28 +418,24 @@
         bindBtn.innerText = "Set Keybind";
         bindBtn.classList.remove("listening");
         updateBindDisplay();
-        console.log("saved new keyboawd keybind: " + currentBind.code + " :3");
         return;
       }
 
-      // dont wing while typing in the woom code box :3
+      if (isTauriApp) return;
       if (document.activeElement === document.getElementById("join-room")) return;
       if (!document.getElementById("keybind-enabled").checked) return;
       if (!currentBind || event.repeat || !activeRoom) return;
 
       if (currentBind.type === "keyboard" && event.code === currentBind.code) {
         event.preventDefault();
-        console.log("keybind twiggowed beww wing :3");
         ringBell();
       }
     });
 
-    // handle mouse cwicks fow binding ow winging the beww :3
     window.addEventListener("mousedown", (event) => {
       const ownerView = document.getElementById("owner-view");
       if (ownerView.classList.contains("hidden")) return;
 
-      // captuwe new mouse button keybind :3
       if (isListeningForBind) {
         event.preventDefault();
         event.stopPropagation();
@@ -437,11 +451,9 @@
         bindBtn.innerText = "Set Keybind";
         bindBtn.classList.remove("listening");
         updateBindDisplay();
-        console.log("saved new mouse keybind: " + label + " :3");
         return;
       }
 
-      // avoid doubwe-winging when cwicking buttons ow inputs diwectwy :3
       const tag = event.target.tagName;
       if (tag === "BUTTON" || tag === "INPUT" || tag === "LABEL") return;
       if (!document.getElementById("keybind-enabled").checked) return;
@@ -449,12 +461,10 @@
 
       if (currentBind.type === "mouse" && event.button === currentBind.button) {
         event.preventDefault();
-        console.log("mouse keybind twiggowed beww wing :3");
         ringBell();
       }
     });
 
-    // bwock wight-cwick menu if wight mouse button is bound to the beww :3
     window.addEventListener("contextmenu", (event) => {
       const ownerView = document.getElementById("owner-view");
       if (!ownerView.classList.contains("hidden") &&
