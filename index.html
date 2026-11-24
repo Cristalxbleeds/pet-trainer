@@ -264,7 +264,7 @@
       statusEl.innerText = "Creating room... :3";
 
       try {
-        const res = await fetch("/.netlify/functions/bell?room=" + activeRoom);
+        const res = await fetch("/api/bell?room=" + activeRoom);
         const data = await res.json();
         lastCount = data.count;
         statusEl.innerText = "Listening! Tell Owner to join: " + roomName + " :3";
@@ -273,7 +273,7 @@
         // check evewy 700ms fow new beww wings :3
         pollTimer = setInterval(async () => {
           try {
-            const check = await fetch("/.netlify/functions/bell?room=" + activeRoom);
+            const check = await fetch("/api/bell?room=" + activeRoom);
             const state = await check.json();
             if (state.joined) {
               statusEl.innerText = "Owner connected! Ready for headpats :3";
@@ -305,7 +305,7 @@
       statusEl.innerText = "Connecting to Pet... :3";
 
       try {
-        const res = await fetch("/.netlify/functions/bell?room=" + activeRoom, {
+        const res = await fetch("/api/bell?room=" + activeRoom, {
           method: "POST",
           body: "HELLO"
         });
@@ -335,7 +335,7 @@
 
       try {
         statusEl.innerText = "Ringing Pet... :3";
-        await fetch("/.netlify/functions/bell?room=" + activeRoom, {
+        await fetch("/api/bell?room=" + activeRoom, {
           method: "POST",
           body: "RING"
         });
