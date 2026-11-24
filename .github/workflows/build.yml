@@ -23,13 +23,22 @@ jobs:
       - name: Install Tauri CLI
         run: npm install
 
-      - name: Generate app icon & web folder
+      - name: Normalize pink paw icon & prepare web folder
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path web | Out-Null
           Copy-Item index.html web/index.html
           Copy-Item goodpet.mp3 web/goodpet.mp3
-          npx tauri icon icon.png
+          Add-Type -AssemblyName System.Drawing
+          $img = [System.Drawing.Image]::FromFile((Resolve-Path "icon.png"))
+          $bmp = New-Object System.Drawing.Bitmap(512, 512, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+          $g = [System.Drawing.Graphics]::FromImage($bmp)
+          $g.DrawImage($img, 0, 0, 512, 512)
+          $g.Dispose()
+          $img.Dispose()
+          $bmp.Save((Join-Path (Get-Location) "clean_icon.png"), [System.Drawing.Imaging.ImageFormat]::Png)
+          $bmp.Dispose()
+          npx tauri icon clean_icon.png
 
       - name: Build Windows installer
         run: npx tauri build --bundles nsis
@@ -65,12 +74,11 @@ jobs:
       - name: Install Tauri CLI
         run: npm install
 
-      - name: Generate app icon & web folder
+      - name: Prepare web folder
         run: |
           mkdir -p web
           cp index.html web/index.html
           cp goodpet.mp3 web/goodpet.mp3
-          npx tauri icon icon.png
 
       - name: Initialize Android project & build signed APK
         env:
@@ -78,7 +86,9 @@ jobs:
         run: |
           NDK_DIR=$(ls -d /usr/local/lib/android/sdk/ndk/* | tail -n 1)
           export NDK_HOME="$NDK_DIR"
+          python3 -c 'from PIL import Image; Image.open("icon.png").convert("RGBA").resize((512, 512)).save("clean_icon.png")' || cp icon.png clean_icon.png
           npx tauri android init --ci
+          npx tauri icon clean_icon.png
           npx tauri android build --apk --target aarch64
           BUILD_TOOLS=$(ls -d /usr/local/lib/android/sdk/build-tools/* | tail -n 1)
           keytool -genkeypair -v -keystore release.keystore -alias goodpet -keyalg RSA -keysize 2048 -validity 10000 -storepass goodpet123 -keypass goodpet123 -dname "CN=GoodPetBell, OU=App, O=Cristalxbleeds, L=City, S=State, C=CL"
@@ -90,4 +100,3 @@ jobs:
         with:
           name: Good-Pet-Bell-Android
           path: Good-Pet-Bell.apk
-
