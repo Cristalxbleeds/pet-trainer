@@ -35,7 +35,7 @@
       font-size: 1rem;
       box-sizing: border-box;
     }
-    input {
+    input[type="text"], input[type="file"] {
       background: #3f3f46;
       color: white;
     }
@@ -49,7 +49,7 @@
     button:hover {
       background: #db2777;
     }
-    button:active {
+    button:active, button.pressed {
       transform: scale(0.96);
     }
     .big-bell {
@@ -75,6 +75,66 @@
       margin-top: -4px;
       margin-bottom: 12px;
     }
+    .keybind-box {
+      background: #1f1f23;
+      border: 1px solid #3f3f46;
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 14px;
+    }
+    .keybind-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      color: #e4e4e7;
+      margin-bottom: 8px;
+    }
+    .keybind-top label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .keybind-top input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+      cursor: pointer;
+    }
+    .keybind-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .key-badge {
+      flex: 1;
+      background: #3f3f46;
+      color: #f472b6;
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+    .keybind-row button {
+      width: auto;
+      margin: 0;
+      padding: 10px 12px;
+      font-size: 0.85rem;
+      background: #8b5cf6;
+    }
+    .keybind-row button:hover {
+      background: #7c3aed;
+    }
+    .keybind-row button.clear-btn {
+      background: #3f3f46;
+    }
+    .keybind-row button.clear-btn:hover {
+      background: #52525b;
+    }
+    .listening {
+      background: #10b981 !important;
+      color: #18181b !important;
+    }
   </style>
 </head>
 <body>
@@ -93,7 +153,7 @@
     <input type="file" id="audio-file" accept="audio/*" onchange="loadAudio(event)">
     <div class="hint" id="sound-label">Using default sound (goodpet.mp3) :3</div>
     <p>Enter a secret room code:</p>
-    <input type="text" id="host-room" placeholder="e.g. goodpuppy123">
+    <input type="text" id="host-room" placeholder="e.g. goodpuppy123" onkeydown="if(event.key==='Enter'){event.preventDefault();startHost();}">
     <button onclick="startHost()">Start Listening</button>
     <button onclick="playLocalSound()" style="background: #3f3f46; margin-top: 15px;">Test Sound Locally</button>
     <div class="status" id="host-status">Waiting to start...</div>
@@ -102,9 +162,27 @@
   <!-- Owner / Sender View -->
   <div class="card hidden" id="owner-view">
     <h2>Owner Bell Clicker :3</h2>
-    <input type="text" id="join-room" placeholder="Enter Pet's room code">
+    <input type="text" id="join-room" placeholder="Enter Pet's room code" onkeydown="if(event.key==='Enter'){event.preventDefault();connectToHost();}">
     <button onclick="connectToHost()">Connect to Pet</button>
     <button class="big-bell hidden" id="bell-btn" onclick="ringBell()">RING FOR GOOD PET</button>
+
+    <!-- keybind contwows fow keyboawd and mouse buttons :3 -->
+    <div class="keybind-box hidden" id="keybind-box">
+      <div class="keybind-top">
+        <span>Clicker Keybind :3</span>
+        <label>
+          <input type="checkbox" id="keybind-enabled" checked>
+          <span>Enabled</span>
+        </label>
+      </div>
+      <div class="keybind-row">
+        <div class="key-badge" id="keybind-display">Key: Space</div>
+        <button id="bind-btn" onclick="startBinding(event)">Set Keybind</button>
+        <button class="clear-btn" onclick="clearBinding(event)">Clear</button>
+      </div>
+      <div class="hint" style="margin-top: 8px; margin-bottom: 0;">Works with any keyboard key or mouse button :3</div>
+    </div>
+
     <div class="status" id="owner-status">Not connected yet...</div>
   </div>
 
@@ -117,6 +195,21 @@
     let activeRoom = "";
     let lastCount = null;
     let customAudio = new Audio(DEFAULT_SOUND);
+
+    // keybind state saved in wocawStowage so it wemembews youw favowite button :3
+    let currentBind = JSON.parse(localStorage.getItem("goodpet_keybind")) || {
+      type: "keyboard",
+      code: "Space",
+      label: "Key: Space"
+    };
+    let isListeningForBind = false;
+
+    // update the keybind wabew on scween :3
+    function updateBindDisplay() {
+      const display = document.getElementById("keybind-display");
+      display.innerText = currentBind ? currentBind.label : "None set :3";
+    }
+    updateBindDisplay();
 
     // switch to pet view :3
     function showPet() {
@@ -199,7 +292,6 @@
         console.log("netlify function ewwow :3", err);
       }
     }
-
     // connect ownew to the woom :3
     async function connectToHost() {
       const statusEl = document.getElementById('owner-status');
@@ -218,8 +310,9 @@
           body: "HELLO"
         });
         if (!res.ok) throw new Error("Server error");
-        statusEl.innerText = "Connected! Click the bell when Pet does good :3";
+        statusEl.innerText = "Connected! Click the bell or press your keybind :3";
         document.getElementById('bell-btn').classList.remove('hidden');
+        document.getElementById('keybind-box').classList.remove('hidden');
         console.log("ownew connected to woom :3");
       } catch (err) {
         statusEl.innerText = "Failed to connect! Check room code :3";
@@ -227,13 +320,18 @@
       }
     }
 
-    // send the wing signaw when the giant button is cwicked :3
+    // send the wing signaw when the giant button ow keybind is twiggowed :3
     async function ringBell() {
       const statusEl = document.getElementById('owner-status');
+      const bellBtn = document.getElementById('bell-btn');
       if (!activeRoom) {
         alert("Connect to a room first! :3");
         return;
       }
+
+      // wittwe visual squish animation on the giant button :3
+      bellBtn.classList.add('pressed');
+      setTimeout(() => bellBtn.classList.remove('pressed'), 120);
 
       try {
         statusEl.innerText = "Ringing Pet... :3";
@@ -241,13 +339,132 @@
           method: "POST",
           body: "RING"
         });
-        statusEl.innerText = "Bell rung! Click again anytime :3";
+        statusEl.innerText = "Bell rung! Click or press keybind anytime :3";
         console.log("sent wing signaw :3");
       } catch (err) {
         statusEl.innerText = "Error sending ring! Try again :3";
         console.log("wing ewwow :3", err);
       }
     }
+
+    // stawt wistening fow a new keyboawd key ow mouse button :3
+    function startBinding(event) {
+      event.stopPropagation();
+      isListeningForBind = true;
+      const bindBtn = document.getElementById("bind-btn");
+      bindBtn.innerText = "Press any key/mouse...";
+      bindBtn.classList.add("listening");
+      console.log("wistening fow new keybind input :3");
+    }
+
+    // cweaw the saved keybind :3
+    function clearBinding(event) {
+      event.stopPropagation();
+      isListeningForBind = false;
+      currentBind = null;
+      localStorage.removeItem("goodpet_keybind");
+      const bindBtn = document.getElementById("bind-btn");
+      bindBtn.innerText = "Set Keybind";
+      bindBtn.classList.remove("listening");
+      updateBindDisplay();
+      console.log("cweawed custom keybind :3");
+    }
+
+    // tuwn mouse button numbew into a cute weadabwe name :3
+    function formatMouseButton(button) {
+      if (button === 0) return "Mouse Left";
+      if (button === 1) return "Mouse Middle";
+      if (button === 2) return "Mouse Right";
+      if (button === 3) return "Mouse Back (M4)";
+      if (button === 4) return "Mouse Forward (M5)";
+      return "Mouse Button " + button;
+    }
+
+    // handle keyboawd pwesses fow binding ow winging the beww :3
+    window.addEventListener("keydown", (event) => {
+      const ownerView = document.getElementById("owner-view");
+      if (ownerView.classList.contains("hidden")) return;
+
+      // captuwe new keyboawd keybind :3
+      if (isListeningForBind) {
+        event.preventDefault();
+        const keyName = event.code === "Space" ? "Space" : event.key.toUpperCase();
+        currentBind = {
+          type: "keyboard",
+          code: event.code,
+          label: "Key: " + keyName
+        };
+        localStorage.setItem("goodpet_keybind", JSON.stringify(currentBind));
+        isListeningForBind = false;
+        const bindBtn = document.getElementById("bind-btn");
+        bindBtn.innerText = "Set Keybind";
+        bindBtn.classList.remove("listening");
+        updateBindDisplay();
+        console.log("saved new keyboawd keybind: " + currentBind.code + " :3");
+        return;
+      }
+
+      // dont wing while typing in the woom code box :3
+      if (document.activeElement === document.getElementById("join-room")) return;
+      if (!document.getElementById("keybind-enabled").checked) return;
+      if (!currentBind || event.repeat || !activeRoom) return;
+
+      if (currentBind.type === "keyboard" && event.code === currentBind.code) {
+        event.preventDefault();
+        console.log("keybind twiggowed beww wing :3");
+        ringBell();
+      }
+    });
+
+    // handle mouse cwicks fow binding ow winging the beww :3
+    window.addEventListener("mousedown", (event) => {
+      const ownerView = document.getElementById("owner-view");
+      if (ownerView.classList.contains("hidden")) return;
+
+      // captuwe new mouse button keybind :3
+      if (isListeningForBind) {
+        event.preventDefault();
+        event.stopPropagation();
+        const label = formatMouseButton(event.button);
+        currentBind = {
+          type: "mouse",
+          button: event.button,
+          label: label
+        };
+        localStorage.setItem("goodpet_keybind", JSON.stringify(currentBind));
+        isListeningForBind = false;
+        const bindBtn = document.getElementById("bind-btn");
+        bindBtn.innerText = "Set Keybind";
+        bindBtn.classList.remove("listening");
+        updateBindDisplay();
+        console.log("saved new mouse keybind: " + label + " :3");
+        return;
+      }
+
+      // avoid doubwe-winging when cwicking buttons ow inputs diwectwy :3
+      const tag = event.target.tagName;
+      if (tag === "BUTTON" || tag === "INPUT" || tag === "LABEL") return;
+      if (!document.getElementById("keybind-enabled").checked) return;
+      if (!currentBind || !activeRoom) return;
+
+      if (currentBind.type === "mouse" && event.button === currentBind.button) {
+        event.preventDefault();
+        console.log("mouse keybind twiggowed beww wing :3");
+        ringBell();
+      }
+    });
+
+    // bwock wight-cwick menu if wight mouse button is bound to the beww :3
+    window.addEventListener("contextmenu", (event) => {
+      const ownerView = document.getElementById("owner-view");
+      if (!ownerView.classList.contains("hidden") &&
+          document.getElementById("keybind-enabled").checked &&
+          currentBind &&
+          currentBind.type === "mouse" &&
+          currentBind.button === 2) {
+        event.preventDefault();
+      }
+    });
   </script>
 </body>
 </html>
