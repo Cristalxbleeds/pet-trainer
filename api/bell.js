@@ -15,12 +15,13 @@ export default function handler(req, res) {
     rooms[room] = { count: 0, joined: false };
   }
 
-  // adc sends a wing ow hewwo signaw :3
+  // adc sends a wing batch ow hewwo signaw :3
   if (req.method === "POST") {
-    const body = req.body || "";
-    if (body === "RING") {
-      rooms[room].count += 1;
-      console.log("beww wung in woom: " + room + " :3");
+    const body = String(req.body || "");
+    if (body === "RING" || body.startsWith("RING:")) {
+      const amount = body.startsWith("RING:") ? Math.max(1, Math.min(100, parseInt(body.split(":")[1], 10) || 1)) : 1;
+      rooms[room].count += amount;
+      console.log("beww wung +" + amount + " in woom: " + room + " :3");
     } else if (body === "HELLO") {
       rooms[room].joined = true;
       console.log("adc joined woom: " + room + " :3");
