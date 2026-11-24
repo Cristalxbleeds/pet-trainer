@@ -1,7 +1,10 @@
 ### Good Pet Bell :3
 
-Welcome to Good Pet Bell (https://pettraining.netlify.app), a lightweight, real-time remote clicker and bell web app made for hanging out, gaming, and clicker training with custom sounds :3
+Welcome to **Good Pet Bell** (https://vercel.app), a browser-based remote clicker and bell app designed for interactive clicker training and custom sound playback with no setup required :3
 
-The entire app runs directly inside any desktop or mobile browser with zero downloads, zero accounts, and zero complicated setup :3 The Pet can jump straight in using the built-in default dog clicker sound (`goodpet.mp3`) for instant clicker training, or pick any custom MP3 or WAV audio file straight from their own device, set a secret room code, click Start Listening, and hit Test Sound Locally once to unlock browser audio :3
+#### Quick Guide :3
 
-From there, the Owner simply opens https://pettraining.netlify.app on their phone or second monitor, enters the exact same room code, clicks Connect to Pet, and taps the giant button to trigger that clicker or custom sound on the Pet's screen in real time :3 Multiple pairs can also create and use their own separate private rooms at the exact same time :3
+- **Pet (Sound Receiver):** Select **I am the Pet (Sound Receiver)** at https://vercel.app, use the default dog clicker sound (`goodpet.mp3`) or upload a custom audio file, enter a room code, and press **Enter** (or click **Start Listening**) :3 Remember to click **Test Sound Locally** first to enable browser audio :3
+- **Owner (Bell Clicker):** Select **I am the Owner (Bell Clicker)**, enter the shared room code, and press **Enter** (or click **Connect to Pet**) :3 Tap the **RING FOR GOOD PET** button or use your assigned keybind to ring the bell in real time :3
+- **Custom Keybinds:** Assign any keyboard key (default: `Space`) or mouse button (Left, Middle, Right, M4, M5) on the Owner screen, which saves automatically and triggers when the browser tab is active :3
+- **Private Rooms:** Support for multiple independent, private rooms simultaneously :3
