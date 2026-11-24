@@ -34,7 +34,6 @@
       transition: background 0.25s ease, color 0.25s ease;
     }
 
-    /* Monochrome emo checkered mode for Cristalxbleeds & Dev Room :3 */
     body.checker-theme {
       background-color: #09090b;
       background-image:
@@ -51,7 +50,7 @@
       border: 1px solid var(--border-glow);
       padding: 1.5rem;
       border-radius: 20px;
-      box-shadow: 0 12px 34px rgba(0,0,0,0.55), 0 0 24px var(--border-glow);
+      box-shadow: 0 12px 34px rgba(0, 0, 0, 0.55), 0 0 24px var(--border-glow);
       max-width: 430px;
       width: 100%;
       box-sizing: border-box;
@@ -99,7 +98,6 @@
       font-weight: bold;
       color: var(--accent-color);
     }
-
     input[type="text"], input[type="number"], input[type="file"], button {
       width: 100%;
       padding: 11px 12px;
@@ -216,7 +214,6 @@
       margin-bottom: 8px;
       color: var(--text-color);
     }
-
     .combo-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -335,7 +332,7 @@
       border-radius: 9px;
       font-size: 0.88rem;
       text-align: center;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.25);
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.25);
     }
 
     .keybind-row button {
@@ -381,7 +378,6 @@
       cursor: pointer;
     }
 
-    /* Bottom-right mascot + Made By badge :3 */
     .corner-brand {
       position: fixed;
       right: 14px;
@@ -399,7 +395,7 @@
       height: 68px;
       object-fit: contain;
       image-rendering: pixelated;
-      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.65));
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.65));
     }
 
     .credit-footer {
@@ -410,10 +406,11 @@
       padding: 4px 10px;
       border-radius: 999px;
       opacity: 0.9;
+    }
+  </style>
+</head>
 <body>
-
   <div class="card">
-    <!-- Top navigation bar -->
     <div class="top-bar">
       <button class="pill-btn hidden" id="back-btn" onclick="goBack()">← Back</button>
       <div class="coin-badge" id="coin-display">🔔 0 Rings</div>
@@ -424,7 +421,6 @@
       </div>
     </div>
 
-    <!-- Setup / Role Picker View -->
     <div id="setup-view">
       <h2 style="margin-top: 4px;">Good Pet Bell :3</h2>
       <p style="color: var(--muted-color); font-size: 0.92rem;">Pick your role to get started!</p>
@@ -432,7 +428,6 @@
       <button onclick="openView('owner-view')" class="secondary-btn" style="margin-top: 8px;">I am the Owner (Bell Clicker)</button>
     </div>
 
-    <!-- Pet / Receiver View -->
     <div id="pet-view" class="hidden">
       <h2 style="margin-top: 4px;">Pet Receiver :3</h2>
       <p style="font-size: 0.88rem; margin-bottom: 6px;">Pick a custom sound or use the built-in default:</p>
@@ -466,7 +461,6 @@
       <div class="status" id="host-status">Waiting to start...</div>
     </div>
 
-    <!-- Owner / Sender View -->
     <div id="owner-view" class="hidden">
       <h2 style="margin-top: 4px;">Owner Bell Clicker :3</h2>
       <div class="row-flex">
@@ -514,8 +508,6 @@
 
       <div class="status" id="owner-status">Not connected yet...</div>
     </div>
-
-    <!-- Theme Shop View -->
     <div id="shop-view" class="hidden">
       <h2 style="margin-top: 4px;">Theme Shop :3</h2>
       <p class="hint">Earn 1 Ring per click or receive to unlock themes!</p>
@@ -531,7 +523,6 @@
       </div>
     </div>
 
-    <!-- Stats Menu View (Room vs Global + Reset) -->
     <div id="stats-view" class="hidden">
       <h2 style="margin-top: 4px;">Your Stats :3</h2>
       <div class="sub-box" style="margin-top: 8px;">
@@ -545,7 +536,6 @@
       <button class="danger-btn" onclick="resetAllProgress()" style="margin-top: 12px;">Reset All Progress &amp; Stats</button>
     </div>
 
-    <!-- Secret Dev Debug Room (devcristalxbleeds) -->
     <div id="dev-view" class="hidden">
       <h2 style="margin-top: 4px;">🖤 Dev Debug Room :3</h2>
       <p class="hint">Secret testing console for @Cristalxbleeds</p>
@@ -586,7 +576,6 @@
     </div>
   </div>
 
-  <!-- Bottom-right Kuromi mascot + Made By signature :3 -->
   <div class="corner-brand">
     <img id="kuromi-img" class="kuromi-mascot hidden" src="kuromi.gif" onerror="if(!this.dataset.tried){this.dataset.tried=1;this.src='kuromi.png';}else{this.classList.add('hidden');}" alt="Kuromi :3">
     <div class="credit-footer">Made By: @Cristalxbleeds</div>
@@ -594,7 +583,7 @@
   <script>
     const DEFAULT_SOUND = "goodpet.mp3";
     const isTauriApp = Boolean(window.__TAURI__);
-    const API_BASE = isTauriApp ? "https://vercel.app" : "/api/bell";
+    const API_BASE = isTauriApp ? "https://pettrainer.vercel.app" : "/api/bell";
 
     let pollTimer = null;
     let roleTimer = null;
@@ -614,7 +603,6 @@
     let customAudio = new Audio(DEFAULT_SOUND);
     let audioCtx = null;
     let gainNode = null;
-    let mediaSource = null;
 
     const defaultData = {
       coins: 0,
@@ -623,8 +611,8 @@
       bestSession: 0,
       ownerSeconds: 0,
       petSeconds: 0,
-      unlockedCombos:,
-      ownedThemes: ["default"],
+      unlockedCombos: Array.of(2),
+      ownedThemes: Array.of("default"),
       activeTheme: "default",
       customColors: { bg: "#141318", card: "#1f1d26", sub: "#18161f", accent: "#ec4899", sec: "#a855f7" },
       roomHistory: []
@@ -653,6 +641,7 @@
       { mult: 7, req: 500 },
       { mult: 10, req: 1000 }
     ];
+
     function applyTheme(themeId, forceChecker = false) {
       const root = document.documentElement;
       const kuromiEl = document.getElementById("kuromi-img");
@@ -678,7 +667,7 @@
         document.getElementById("cust-sec").value = c.sec || c.accent;
       } else {
         document.getElementById("custom-theme-editor").classList.add("hidden");
-        const t = THEMES.find(x => x.id === themeId) || THEMES;
+        const t = THEMES.find(x => x.id === themeId) || THEMES.at(0);
         const v = t.vars;
         const isChecker = Boolean(t.checker) || forceChecker;
         document.body.classList.toggle("checker-theme", isChecker);
@@ -701,7 +690,6 @@
       }
       renderShop();
     }
-
     function applyCustomColors() {
       userData.customColors = {
         bg: document.getElementById("cust-bg").value,
@@ -756,20 +744,20 @@
     function renderStats() {
       const roomList = document.getElementById("room-stats-list");
       const globalList = document.getElementById("global-stats-list");
-      const roomRows = [
-        ["Active Room", activeRoom ? activeRoom : "None"],
-        ["Session Rings Sent", sessionRings],
-        ["Session Rings Received", sessionReceived],
-        ["Selected Combo", selectedCombo + "x"]
-      ];
-      const globalRows = [
-        ["Total Rings Sent (Owner)", userData.sentRings],
-        ["Total Rings Received (Pet)", userData.receivedRings],
-        ["Best Session Rings", userData.bestSession],
-        ["Unlocked Combos", userData.unlockedCombos.map(x => x + "x").join(", ")],
-        ["Time as Owner", formatDuration(userData.ownerSeconds)],
-        ["Time as Pet", formatDuration(userData.petSeconds)]
-      ];
+      const roomRows = Array.of(
+        Array.of("Active Room", activeRoom ? activeRoom : "None"),
+        Array.of("Session Rings Sent", sessionRings),
+        Array.of("Session Rings Received", sessionReceived),
+        Array.of("Selected Combo", selectedCombo + "x")
+      );
+      const globalRows = Array.of(
+        Array.of("Total Rings Sent (Owner)", userData.sentRings),
+        Array.of("Total Rings Received (Pet)", userData.receivedRings),
+        Array.of("Best Session Rings", userData.bestSession),
+        Array.of("Unlocked Combos", userData.unlockedCombos.map(x => x + "x").join(", ")),
+        Array.of("Time as Owner", formatDuration(userData.ownerSeconds)),
+        Array.of("Time as Pet", formatDuration(userData.petSeconds))
+      );
       roomList.innerHTML = roomRows.map(r => `<div class="stat-row"><span>${r.at(0)}</span><strong>${r.at(1)}</strong></div>`).join("");
       globalList.innerHTML = globalRows.map(r => `<div class="stat-row"><span>${r.at(0)}</span><strong>${r.at(1)}</strong></div>`).join("");
     }
@@ -777,13 +765,107 @@
     function resetAllProgress() {
       if (!confirm("Reset ALL Rings, themes, combos, and stats? :3")) return;
       localStorage.removeItem("goodpet_profile");
-      userData = Object.assign({}, defaultData, { unlockedCombos: [2], ownedThemes: ["default"], roomHistory: [] });
+      userData = Object.assign({}, defaultData, {
+        unlockedCombos: Array.of(2),
+        ownedThemes: Array.of("default"),
+        roomHistory: []
+      });
       sessionRings = 0;
       sessionReceived = 0;
       selectedCombo = 2;
       applyTheme("default");
       renderStats();
       alert("All progress has been reset! :3");
+    }
+
+    function openView(viewId) {
+      if (viewId === "shop-view" || viewId === "stats-view") {
+        if (currentViewId !== "shop-view" && currentViewId !== "stats-view") {
+          previousViewId = currentViewId;
+        }
+      }
+      currentViewId = viewId;
+
+      Array.of("setup-view", "pet-view", "owner-view", "shop-view", "stats-view", "dev-view").forEach(id => {
+        document.getElementById(id).classList.add("hidden");
+      });
+      document.getElementById(viewId).classList.remove("hidden");
+      document.getElementById("back-btn").classList.toggle("hidden", viewId === "setup-view");
+
+      if (viewId === "shop-view") renderShop();
+      if (viewId === "stats-view") renderStats();
+      if (viewId === "dev-view") {
+        applyTheme("cristalxbleeds", true);
+      } else {
+        applyTheme(userData.activeTheme || "default", false);
+      }
+
+      if (viewId === "pet-view") activeRole = "pet";
+      else if (viewId === "owner-view") activeRole = "owner";
+      else if (viewId === "setup-view") activeRole = "setup";
+    }
+
+    function goBack() {
+      if (currentViewId === "shop-view" || currentViewId === "stats-view") {
+        openView(previousViewId || "setup-view");
+        return;
+      }
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+      stopKeepAlive();
+      activeRoom = "";
+      sessionRings = 0;
+      sessionReceived = 0;
+      document.getElementById("owner-controls").classList.add("hidden");
+      document.getElementById("host-status").innerText = "Waiting to start...";
+      document.getElementById("owner-status").innerText = "Not connected yet...";
+      syncNativeHotkey();
+      openView("setup-view");
+    }
+
+    function devUnlockAll() {
+      userData.unlockedCombos = COMBO_TIERS.map(t => t.mult);
+      userData.ownedThemes = THEMES.map(t => t.id);
+      saveData();
+      renderShop();
+      alert("Unlocked all combos & themes! :3");
+    }
+
+    function devLockAll() {
+      userData.unlockedCombos = Array.of(2);
+      userData.ownedThemes = Array.of("default");
+      selectedCombo = 2;
+      applyTheme("cristalxbleeds", true);
+      alert("Locked all combos & themes! :3");
+    }
+
+    function devAddCoins(amount) {
+      userData.coins += amount;
+      saveData();
+    }
+
+    function devSetExactCoins() {
+      const val = parseInt(document.getElementById("dev-coin-input").value, 10);
+      if (!isNaN(val)) {
+        userData.coins = Math.max(0, val);
+        saveData();
+      }
+    }
+
+    function devApplyStats() {
+      const s = parseInt(document.getElementById("dev-sent-input").value, 10);
+      const r = parseInt(document.getElementById("dev-recv-input").value, 10);
+      if (!isNaN(s)) userData.sentRings = Math.max(0, s);
+      if (!isNaN(r)) userData.receivedRings = Math.max(0, r);
+      saveData();
+      alert("Stats updated! :3");
+    }
+
+    function devSimulateReceive(count) {
+      userData.receivedRings += count;
+      userData.coins += count;
+      sessionReceived += count;
+      saveData();
+      playLocalSound(false);
     }
     roleTimer = setInterval(() => {
       if (activeRole === "owner" && activeRoom) {
@@ -797,13 +879,13 @@
 
     function saveRoomToHistory(code) {
       if (!code || code === "devcristalxbleeds" || code === "cristalxbleeds") return;
-      userData.roomHistory = [code, ...userData.roomHistory.filter(x => x !== code)].slice(0, 10);
+      userData.roomHistory = Array.of(code).concat(userData.roomHistory.filter(x => x !== code)).slice(0, 10);
       saveData();
       renderHistory();
     }
 
     function renderHistory() {
-      ["pet", "owner"].forEach(prefix => {
+      Array.of("pet", "owner").forEach(prefix => {
         const container = document.getElementById(prefix + "-history-list");
         const input = document.getElementById(prefix === "pet" ? "host-room" : "join-room");
         if (userData.roomHistory.length === 0) {
