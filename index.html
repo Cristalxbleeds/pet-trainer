@@ -6,21 +6,21 @@
   <title>Good Pet Bell :3</title>
   <style>
     :root {
-      --bg-color: #18181b;
-      --card-color: #27272a;
-      --subcard-color: #1f1f23;
-      --input-color: #3f3f46;
+      --bg-color: #141318;
+      --card-color: #1f1d26;
+      --subcard-color: #18161f;
+      --input-color: #2d2a38;
       --accent-color: #ec4899;
-      --accent-hover: #db2777;
-      --bell-grad-1: #f472b6;
-      --bell-grad-2: #a855f7;
+      --accent-secondary: #a855f7;
       --text-color: #f4f4f5;
       --muted-color: #a1a1aa;
+      --border-glow: rgba(236, 72, 153, 0.35);
+      --btn-text: #ffffff;
     }
 
     body {
       font-family: system-ui, -apple-system, sans-serif;
-      background-color: var(--bg-color);
+      background: radial-gradient(circle at top, var(--card-color) 0%, var(--bg-color) 75%);
       color: var(--text-color);
       display: flex;
       flex-direction: column;
@@ -28,20 +28,34 @@
       justify-content: center;
       min-height: 100vh;
       margin: 0;
-      padding: 16px;
+      padding: 16px 16px 64px 16px;
+      box-sizing: border-box;
       text-align: center;
-      transition: background-color 0.25s ease, color 0.25s ease;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    /* Monochrome emo checkered mode for Cristalxbleeds & Dev Room :3 */
+    body.checker-theme {
+      background-color: #09090b;
+      background-image:
+        linear-gradient(45deg, #141417 25%, transparent 25%),
+        linear-gradient(-45deg, #141417 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #141417 75%),
+        linear-gradient(-45deg, transparent 75%, #141417 75%);
+      background-size: 36px 36px;
+      background-position: 0 0, 0 18px, 18px -18px, -18px 0;
     }
 
     .card {
       background: var(--card-color);
+      border: 1px solid var(--border-glow);
       padding: 1.5rem;
-      border-radius: 18px;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.45);
-      max-width: 420px;
+      border-radius: 20px;
+      box-shadow: 0 12px 34px rgba(0,0,0,0.55), 0 0 24px var(--border-glow);
+      max-width: 430px;
       width: 100%;
       box-sizing: border-box;
-      transition: background-color 0.25s ease;
+      transition: all 0.25s ease;
     }
 
     .top-bar {
@@ -49,7 +63,7 @@
       justify-content: space-between;
       align-items: center;
       gap: 6px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       flex-wrap: wrap;
     }
 
@@ -60,59 +74,79 @@
       font-size: 0.82rem;
       border-radius: 999px;
       background: var(--input-color);
+      border: 1px solid var(--border-glow);
       color: var(--text-color);
       font-weight: 600;
     }
 
     .pill-btn:hover {
-      filter: brightness(1.15);
+      filter: brightness(1.18);
       background: var(--input-color);
     }
 
     .pill-btn.active-pin {
-      background: var(--accent-color);
-      color: #fff;
+      background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary));
+      color: var(--btn-text);
+      border-color: transparent;
     }
 
     .coin-badge {
       background: var(--subcard-color);
-      border: 1px solid var(--input-color);
+      border: 1px solid var(--border-glow);
       padding: 6px 12px;
       border-radius: 999px;
       font-size: 0.85rem;
       font-weight: bold;
-      color: #fbbf24;
+      color: var(--accent-color);
     }
 
-    input[type="text"], input[type="file"], button {
+    input[type="text"], input[type="number"], input[type="file"], button {
       width: 100%;
-      padding: 12px;
-      margin: 7px 0;
-      border-radius: 10px;
-      border: none;
-      font-size: 1rem;
+      padding: 11px 12px;
+      margin: 6px 0;
+      border-radius: 11px;
+      border: 1px solid transparent;
+      font-size: 0.98rem;
       box-sizing: border-box;
     }
 
-    input[type="text"], input[type="file"] {
+    input[type="text"], input[type="number"], input[type="file"] {
       background: var(--input-color);
+      border-color: var(--border-glow);
       color: var(--text-color);
+      outline: none;
+    }
+
+    input[type="text"]:focus, input[type="number"]:focus {
+      box-shadow: 0 0 0 2px var(--accent-color);
     }
 
     button {
-      background: var(--accent-color);
-      color: white;
+      background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary));
+      color: var(--btn-text);
       font-weight: bold;
       cursor: pointer;
-      transition: transform 0.1s, background 0.2s, filter 0.2s;
+      transition: transform 0.1s, filter 0.2s, box-shadow 0.2s;
     }
 
     button:hover {
-      background: var(--accent-hover);
+      filter: brightness(1.1);
     }
 
     button:active, button.pressed {
-      transform: scale(0.96);
+      transform: scale(0.95);
+    }
+
+    .secondary-btn {
+      background: var(--input-color);
+      border: 1px solid var(--border-glow);
+      color: var(--text-color);
+    }
+
+    .danger-btn {
+      background: #271316;
+      border: 1px solid #ef4444;
+      color: #fca5a5;
     }
 
     .row-flex {
@@ -127,18 +161,22 @@
 
     .row-flex button.small-action {
       width: auto;
-      padding: 12px 14px;
+      padding: 11px 14px;
       background: var(--input-color);
+      border: 1px solid var(--border-glow);
+      color: var(--text-color);
       font-size: 0.9rem;
     }
 
     .big-bell {
-      height: 155px;
+      height: 150px;
       font-size: 1.65rem;
       border-radius: 22px;
-      background: linear-gradient(135deg, var(--bell-grad-1), var(--bell-grad-2));
-      margin-top: 14px;
-      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+      background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary));
+      color: var(--btn-text);
+      margin-top: 10px;
+      box-shadow: 0 8px 24px var(--border-glow);
+      letter-spacing: 0.5px;
     }
 
     .hidden {
@@ -148,7 +186,8 @@
     .status {
       margin-top: 12px;
       font-size: 0.9rem;
-      color: #fbbf24;
+      color: var(--accent-color);
+      font-weight: 600;
       word-break: break-word;
     }
 
@@ -161,8 +200,8 @@
 
     .sub-box {
       background: var(--subcard-color);
-      border: 1px solid var(--input-color);
-      border-radius: 12px;
+      border: 1px solid var(--border-glow);
+      border-radius: 13px;
       padding: 12px;
       margin-top: 12px;
       text-align: left;
@@ -175,6 +214,7 @@
       font-size: 0.88rem;
       font-weight: bold;
       margin-bottom: 8px;
+      color: var(--text-color);
     }
 
     .combo-grid {
@@ -189,16 +229,19 @@
       margin: 0;
       font-size: 0.8rem;
       background: var(--input-color);
-      border-radius: 8px;
+      border: 1px solid var(--border-glow);
+      color: var(--text-color);
+      border-radius: 9px;
     }
 
     .combo-pill.selected {
-      background: var(--accent-color);
-      box-shadow: 0 0 0 2px #fff inset;
+      background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary));
+      color: var(--btn-text);
+      border-color: var(--text-color);
     }
 
     .combo-pill.locked {
-      opacity: 0.55;
+      opacity: 0.5;
       cursor: not-allowed;
       font-size: 0.72rem;
     }
@@ -217,6 +260,7 @@
       justify-content: space-between;
       align-items: center;
       background: var(--card-color);
+      border: 1px solid var(--border-glow);
       padding: 7px 10px;
       border-radius: 8px;
       font-size: 0.88rem;
@@ -233,7 +277,9 @@
       margin: 0;
       padding: 3px 8px;
       font-size: 0.75rem;
-      background: #ef4444;
+      background: var(--input-color);
+      border: 1px solid var(--border-glow);
+      color: var(--text-color);
     }
 
     .shop-item {
@@ -241,27 +287,36 @@
       justify-content: space-between;
       align-items: center;
       background: var(--subcard-color);
-      border: 1px solid var(--input-color);
+      border: 1px solid var(--border-glow);
       padding: 10px 12px;
-      border-radius: 10px;
+      border-radius: 11px;
       margin-bottom: 8px;
     }
 
     .shop-item button {
       width: auto;
       margin: 0;
-      padding: 8px 12px;
-      font-size: 0.85rem;
+      padding: 8px 13px;
+      font-size: 0.84rem;
+    }
+
+    .equipped-btn {
+      background: var(--input-color) !important;
+      border: 1px solid var(--accent-color) !important;
+      color: var(--accent-color) !important;
+      cursor: default;
     }
 
     .stat-row {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       padding: 8px 10px;
       background: var(--subcard-color);
-      border-radius: 8px;
+      border: 1px solid var(--border-glow);
+      border-radius: 9px;
       margin-bottom: 6px;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
     }
 
     .keybind-row {
@@ -273,39 +328,88 @@
     .key-badge {
       flex: 1;
       background: var(--input-color);
-      color: var(--bell-grad-1);
+      border: 1px solid var(--accent-color);
+      color: var(--accent-color);
       font-weight: bold;
       padding: 10px;
-      border-radius: 8px;
+      border-radius: 9px;
       font-size: 0.88rem;
       text-align: center;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.25);
     }
 
     .keybind-row button {
       width: auto;
       margin: 0;
       padding: 10px 12px;
-      font-size: 0.85rem;
+      font-size: 0.84rem;
     }
 
     .listening {
-      background: #10b981 !important;
-      color: #18181b !important;
+      background: var(--accent-secondary) !important;
+      box-shadow: 0 0 14px var(--accent-secondary);
     }
 
-    .slider-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 6px;
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--input-color);
+      border: 1px solid var(--border-glow);
+      outline: none;
+      margin: 8px 0;
     }
 
-    .slider-row input[type="range"] {
-      flex: 1;
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary));
+      border: 2px solid var(--text-color);
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--border-glow);
+    }
+
+    .themed-checkbox {
       accent-color: var(--accent-color);
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
     }
-  </style>
-</head>
+
+    /* Bottom-right mascot + Made By badge :3 */
+    .corner-brand {
+      position: fixed;
+      right: 14px;
+      bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      z-index: 50;
+      pointer-events: none;
+    }
+
+    .kuromi-mascot {
+      width: 68px;
+      height: 68px;
+      object-fit: contain;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.65));
+    }
+
+    .credit-footer {
+      font-size: 0.78rem;
+      color: var(--muted-color);
+      background: var(--card-color);
+      border: 1px solid var(--border-glow);
+      padding: 4px 10px;
+      border-radius: 999px;
+      opacity: 0.9;
 <body>
 
   <div class="card">
@@ -325,13 +429,13 @@
       <h2 style="margin-top: 4px;">Good Pet Bell :3</h2>
       <p style="color: var(--muted-color); font-size: 0.92rem;">Pick your role to get started!</p>
       <button onclick="openView('pet-view')">I am the Pet (Sound Receiver)</button>
-      <button onclick="openView('owner-view')" style="filter: hue-rotate(-25deg);">I am the Owner (Bell Clicker)</button>
+      <button onclick="openView('owner-view')" class="secondary-btn" style="margin-top: 8px;">I am the Owner (Bell Clicker)</button>
     </div>
 
     <!-- Pet / Receiver View -->
     <div id="pet-view" class="hidden">
       <h2 style="margin-top: 4px;">Pet Receiver :3</h2>
-      <p style="font-size: 0.9rem; margin-bottom: 6px;">Pick a custom sound or use the built-in default:</p>
+      <p style="font-size: 0.88rem; margin-bottom: 6px;">Pick a custom sound or use the built-in default:</p>
       <input type="file" id="audio-file" accept="audio/*" onchange="loadAudio(event)">
       <div class="hint" id="sound-label">Using default sound (goodpet.mp3) :3</div>
 
@@ -340,12 +444,14 @@
           <span>Volume &amp; Boost :3</span>
           <span id="vol-label">100%</span>
         </div>
-        <div class="slider-row">
-          <input type="range" id="vol-slider" min="0" max="200" value="100" oninput="updateVolume(this.value)">
-        </div>
+        <input type="range" id="vol-slider" min="0" max="200" value="100" oninput="updateVolume(this.value)">
+        <label style="display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 0.84rem; cursor: pointer;">
+          <input type="checkbox" class="themed-checkbox" id="antispam-toggle">
+          <span>Anti-Spam Sound Mode (keeps 100% Rings, softens rapid spam)</span>
+        </label>
       </div>
 
-      <p style="font-size: 0.9rem; margin-top: 12px; margin-bottom: 4px;">Enter a secret room code:</p>
+      <p style="font-size: 0.88rem; margin-top: 12px; margin-bottom: 4px;">Enter a secret room code:</p>
       <div class="row-flex">
         <input type="text" id="host-room" placeholder="e.g. goodpuppy123" onkeydown="if(event.key==='Enter'){event.preventDefault();startHost();}">
         <button class="small-action" onclick="toggleHistory('pet-history')">📜</button>
@@ -356,7 +462,7 @@
       </div>
 
       <button onclick="startHost()">Start Listening</button>
-      <button onclick="playLocalSound()" style="background: var(--input-color); margin-top: 8px;">Test Sound Locally</button>
+      <button onclick="playLocalSound(true)" class="secondary-btn" style="margin-top: 8px;">Test Sound Locally</button>
       <div class="status" id="host-status">Waiting to start...</div>
     </div>
 
@@ -375,13 +481,12 @@
       <button onclick="connectToHost()">Connect to Pet</button>
 
       <div id="owner-controls" class="hidden">
-        <div style="font-size: 0.85rem; color: var(--muted-color); margin-top: 8px;">
-          Session Rings: <strong id="session-rings-label" style="color: var(--text-color);">0</strong>
+        <div style="font-size: 0.86rem; color: var(--muted-color); margin-top: 8px;">
+          Room: <strong id="active-room-badge" style="color: var(--accent-color);">-</strong> • Session Rings: <strong id="session-rings-label" style="color: var(--text-color);">0</strong>
         </div>
 
         <button class="big-bell" id="bell-btn" onclick="ringBell(1)">RING FOR GOOD PET</button>
 
-        <!-- Unlockable Session Combo Tiers -->
         <div class="sub-box">
           <div class="sub-box-header">
             <span>Combo Multiplier (Session Unlocks) :3</span>
@@ -390,19 +495,18 @@
           <button id="combo-ring-btn" onclick="triggerSelectedCombo()" style="margin-top: 4px;">Trigger 2x Combo</button>
         </div>
 
-        <!-- Global Keybind Box -->
         <div class="sub-box" id="keybind-box">
           <div class="sub-box-header">
             <span id="keybind-title">Clicker Keybind :3</span>
             <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-              <input type="checkbox" id="keybind-enabled" checked onchange="syncNativeHotkey()">
+              <input type="checkbox" class="themed-checkbox" id="keybind-enabled" checked onchange="syncNativeHotkey()">
               <span>Enabled</span>
             </label>
           </div>
           <div class="keybind-row">
             <div class="key-badge" id="keybind-display">Key: Space</div>
             <button id="bind-btn" onclick="startBinding(event)">Set Keybind</button>
-            <button onclick="clearBinding(event)" style="background: var(--input-color);">Clear</button>
+            <button onclick="clearBinding(event)" class="secondary-btn">Clear</button>
           </div>
           <div class="hint" id="keybind-hint" style="margin-top: 8px; margin-bottom: 0;">Works with any keyboard key or mouse button :3</div>
         </div>
@@ -418,32 +522,79 @@
       <div id="shop-list" style="text-align: left;"></div>
 
       <div id="custom-theme-editor" class="sub-box hidden">
-        <div class="sub-box-header"><span>Custom Color Studio :3</span></div>
-        <div class="stat-row">
-          <span>Background</span>
-          <input type="color" id="cust-bg" value="#18181b" onchange="applyCustomColors()">
-        </div>
-        <div class="stat-row">
-          <span>Card Surface</span>
-          <input type="color" id="cust-card" value="#27272a" onchange="applyCustomColors()">
-        </div>
-        <div class="stat-row">
-          <span>Accent &amp; Bell</span>
-          <input type="color" id="cust-accent" value="#ec4899" onchange="applyCustomColors()">
-        </div>
+        <div class="sub-box-header"><span>Custom Color Studio (5 Layers) :3</span></div>
+        <div class="stat-row"><span>Background</span><input type="color" id="cust-bg" value="#141318" onchange="applyCustomColors()"></div>
+        <div class="stat-row"><span>Main Card</span><input type="color" id="cust-card" value="#1f1d26" onchange="applyCustomColors()"></div>
+        <div class="stat-row"><span>Inner Panels</span><input type="color" id="cust-sub" value="#18161f" onchange="applyCustomColors()"></div>
+        <div class="stat-row"><span>Primary Accent</span><input type="color" id="cust-accent" value="#ec4899" onchange="applyCustomColors()"></div>
+        <div class="stat-row"><span>Secondary Glow</span><input type="color" id="cust-sec" value="#a855f7" onchange="applyCustomColors()"></div>
       </div>
     </div>
 
-    <!-- Stats Menu View -->
+    <!-- Stats Menu View (Room vs Global + Reset) -->
     <div id="stats-view" class="hidden">
       <h2 style="margin-top: 4px;">Your Stats :3</h2>
-      <div id="stats-list" style="margin-top: 10px;"></div>
+      <div class="sub-box" style="margin-top: 8px;">
+        <div class="sub-box-header"><span>Current Room / Session :3</span></div>
+        <div id="room-stats-list"></div>
+      </div>
+      <div class="sub-box">
+        <div class="sub-box-header"><span>Global All-Time Stats :3</span></div>
+        <div id="global-stats-list"></div>
+      </div>
+      <button class="danger-btn" onclick="resetAllProgress()" style="margin-top: 12px;">Reset All Progress &amp; Stats</button>
     </div>
+
+    <!-- Secret Dev Debug Room (devcristalxbleeds) -->
+    <div id="dev-view" class="hidden">
+      <h2 style="margin-top: 4px;">🖤 Dev Debug Room :3</h2>
+      <p class="hint">Secret testing console for @Cristalxbleeds</p>
+
+      <div class="sub-box">
+        <div class="sub-box-header"><span>Unlocks &amp; Currency</span></div>
+        <div class="row-flex">
+          <button onclick="devUnlockAll()">Unlock All</button>
+          <button onclick="devLockAll()" class="secondary-btn">Lock All</button>
+        </div>
+        <div class="row-flex" style="margin-top: 4px;">
+          <button onclick="devAddCoins(100)" class="secondary-btn">+100</button>
+          <button onclick="devAddCoins(1000)" class="secondary-btn">+1000</button>
+          <button onclick="devAddCoins(5000)" class="secondary-btn">+5000</button>
+        </div>
+        <div class="row-flex" style="margin-top: 4px;">
+          <input type="number" id="dev-coin-input" placeholder="Set exact Rings">
+          <button class="small-action" onclick="devSetExactCoins()">Set</button>
+        </div>
+      </div>
+
+      <div class="sub-box">
+        <div class="sub-box-header"><span>Manipulate Stats</span></div>
+        <div class="row-flex">
+          <input type="number" id="dev-sent-input" placeholder="Sent Rings">
+          <input type="number" id="dev-recv-input" placeholder="Received Rings">
+          <button class="small-action" onclick="devApplyStats()">Save</button>
+        </div>
+      </div>
+
+      <div class="sub-box">
+        <div class="sub-box-header"><span>Audio &amp; Burst Testers</span></div>
+        <div class="row-flex">
+          <button onclick="playLocalSound(true)">Test Sound</button>
+          <button onclick="devSimulateReceive(10)" class="secondary-btn">Simulate +10 Pet Rings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom-right Kuromi mascot + Made By signature :3 -->
+  <div class="corner-brand">
+    <img id="kuromi-img" class="kuromi-mascot hidden" src="kuromi.gif" onerror="if(!this.dataset.tried){this.dataset.tried=1;this.src='kuromi.png';}else{this.classList.add('hidden');}" alt="Kuromi :3">
+    <div class="credit-footer">Made By: @Cristalxbleeds</div>
   </div>
   <script>
     const DEFAULT_SOUND = "goodpet.mp3";
     const isTauriApp = Boolean(window.__TAURI__);
-    const API_BASE = isTauriApp ? "https://pettrainer.vercel.app/api/bell" : "/api/bell";
+    const API_BASE = isTauriApp ? "https://vercel.app" : "/api/bell";
 
     let pollTimer = null;
     let roleTimer = null;
@@ -451,10 +602,14 @@
     let wakeLock = null;
     let activeRoom = "";
     let activeRole = "setup";
+    let currentViewId = "setup-view";
+    let previousViewId = "setup-view";
     let lastCount = null;
     let sessionRings = 0;
+    let sessionReceived = 0;
     let selectedCombo = 2;
     let isPinned = false;
+    let lastSoundAt = 0;
 
     let customAudio = new Audio(DEFAULT_SOUND);
     let audioCtx = null;
@@ -468,10 +623,10 @@
       bestSession: 0,
       ownerSeconds: 0,
       petSeconds: 0,
-      unlockedCombos: [2],
+      unlockedCombos:,
       ownedThemes: ["default"],
       activeTheme: "default",
-      customColors: { bg: "#18181b", card: "#27272a", accent: "#ec4899" },
+      customColors: { bg: "#141318", card: "#1f1d26", sub: "#18161f", accent: "#ec4899", sec: "#a855f7" },
       roomHistory: []
     };
 
@@ -482,12 +637,13 @@
     }
 
     const THEMES = [
-      { id: "default", name: "Default Pink :3", price: 0, vars: { bg: "#18181b", card: "#27272a", sub: "#1f1f23", input: "#3f3f46", accent: "#ec4899", hover: "#db2777", g1: "#f472b6", g2: "#a855f7", text: "#f4f4f5" } },
-      { id: "cyber", name: "Cyber Purple", price: 150, vars: { bg: "#130f26", card: "#1e173d", sub: "#171130", input: "#2e245c", accent: "#a855f7", hover: "#9333ea", g1: "#c084fc", g2: "#6366f1", text: "#f5f3ff" } },
-      { id: "strawberry", name: "Strawberry Milk", price: 300, vars: { bg: "#2b1d22", card: "#3d2930", sub: "#332228", input: "#543842", accent: "#fb7185", hover: "#f43f5e", g1: "#fda4af", g2: "#f472b6", text: "#fff1f2" } },
-      { id: "miku", name: "Hatsune Miku 01", price: 500, vars: { bg: "#102024", card: "#183036", sub: "#13262b", input: "#23454d", accent: "#39c5bb", hover: "#2ba89f", g1: "#39c5bb", g2: "#e12885", text: "#ecfeff" } },
-      { id: "trans", name: "Trans Pride 🏳️‍⚧️", price: 750, vars: { bg: "#1a2230", card: "#243042", sub: "#1d2736", input: "#33445c", accent: "#5bcefa", hover: "#3abef2", g1: "#5bcefa", g2: "#f5a9b8", text: "#ffffff" } },
-      { id: "custom", name: "Custom Color Studio", price: 1500, vars: null }
+      { id: "default", name: "Default Pink :3", price: 0, vars: { bg: "#141318", card: "#1f1d26", sub: "#18161f", input: "#2d2a38", accent: "#ec4899", sec: "#a855f7", text: "#f4f4f5", glow: "rgba(236, 72, 153, 0.35)", btnText: "#ffffff" } },
+      { id: "cyber", name: "Cyber Purple", price: 150, vars: { bg: "#0f0a1e", card: "#191133", sub: "#130c29", input: "#261a4d", accent: "#a855f7", sec: "#6366f1", text: "#f5f3ff", glow: "rgba(168, 85, 247, 0.38)", btnText: "#ffffff" } },
+      { id: "strawberry", name: "Strawberry Milk", price: 300, vars: { bg: "#241519", card: "#361f26", sub: "#2b181e", input: "#4a2b34", accent: "#fb7185", sec: "#fda4af", text: "#fff1f2", glow: "rgba(251, 113, 133, 0.38)", btnText: "#1f0d12" } },
+      { id: "miku", name: "Hatsune Miku 01", price: 500, vars: { bg: "#09181c", card: "#10282e", sub: "#0c1f24", input: "#173a42", accent: "#39c5bb", sec: "#e12885", text: "#e6fffd", glow: "rgba(57, 197, 187, 0.42)", btnText: "#051417" } },
+      { id: "trans", name: "Trans Pride 🏳️‍⚧️", price: 750, vars: { bg: "#121c29", card: "#1b2a3d", sub: "#162233", input: "#263b54", accent: "#5bcefa", sec: "#f5a9b8", text: "#ffffff", glow: "rgba(91, 206, 250, 0.42)", btnText: "#0f172a" } },
+      { id: "custom", name: "Custom Color Studio", price: 1500, vars: null },
+      { id: "cristalxbleeds", name: "Cristalxbleeds 🖤", price: 3000, checker: true, vars: { bg: "#09090b", card: "#121215", sub: "#0c0c0e", input: "#1e1e22", accent: "#ffffff", sec: "#a1a1aa", text: "#fafafa", glow: "rgba(255, 255, 255, 0.28)", btnText: "#09090b" } }
     ];
 
     const COMBO_TIERS = [
@@ -497,40 +653,52 @@
       { mult: 7, req: 500 },
       { mult: 10, req: 1000 }
     ];
-
-    function applyTheme(themeId) {
+    function applyTheme(themeId, forceChecker = false) {
       const root = document.documentElement;
+      const kuromiEl = document.getElementById("kuromi-img");
+
       if (themeId === "custom") {
+        document.body.classList.toggle("checker-theme", forceChecker);
+        kuromiEl.classList.toggle("hidden", !forceChecker);
         const c = userData.customColors;
         root.style.setProperty("--bg-color", c.bg);
         root.style.setProperty("--card-color", c.card);
-        root.style.setProperty("--subcard-color", c.bg);
+        root.style.setProperty("--subcard-color", c.sub || c.bg);
         root.style.setProperty("--input-color", c.card);
         root.style.setProperty("--accent-color", c.accent);
-        root.style.setProperty("--accent-hover", c.accent);
-        root.style.setProperty("--bell-grad-1", c.accent);
-        root.style.setProperty("--bell-grad-2", c.accent);
+        root.style.setProperty("--accent-secondary", c.sec || c.accent);
         root.style.setProperty("--text-color", "#ffffff");
+        root.style.setProperty("--border-glow", c.accent + "55");
+        root.style.setProperty("--btn-text", "#ffffff");
         document.getElementById("custom-theme-editor").classList.remove("hidden");
         document.getElementById("cust-bg").value = c.bg;
         document.getElementById("cust-card").value = c.card;
+        document.getElementById("cust-sub").value = c.sub || c.bg;
         document.getElementById("cust-accent").value = c.accent;
+        document.getElementById("cust-sec").value = c.sec || c.accent;
       } else {
         document.getElementById("custom-theme-editor").classList.add("hidden");
-        const t = THEMES.find(x => x.id === themeId) || THEMES[0];
+        const t = THEMES.find(x => x.id === themeId) || THEMES;
         const v = t.vars;
+        const isChecker = Boolean(t.checker) || forceChecker;
+        document.body.classList.toggle("checker-theme", isChecker);
+        kuromiEl.classList.toggle("hidden", !isChecker);
+
         root.style.setProperty("--bg-color", v.bg);
         root.style.setProperty("--card-color", v.card);
         root.style.setProperty("--subcard-color", v.sub);
         root.style.setProperty("--input-color", v.input);
         root.style.setProperty("--accent-color", v.accent);
-        root.style.setProperty("--accent-hover", v.hover);
-        root.style.setProperty("--bell-grad-1", v.g1);
-        root.style.setProperty("--bell-grad-2", v.g2);
+        root.style.setProperty("--accent-secondary", v.sec);
         root.style.setProperty("--text-color", v.text);
+        root.style.setProperty("--border-glow", v.glow);
+        root.style.setProperty("--btn-text", v.btnText);
       }
-      userData.activeTheme = themeId;
-      saveData();
+
+      if (!forceChecker) {
+        userData.activeTheme = themeId;
+        saveData();
+      }
       renderShop();
     }
 
@@ -538,7 +706,9 @@
       userData.customColors = {
         bg: document.getElementById("cust-bg").value,
         card: document.getElementById("cust-card").value,
-        accent: document.getElementById("cust-accent").value
+        sub: document.getElementById("cust-sub").value,
+        accent: document.getElementById("cust-accent").value,
+        sec: document.getElementById("cust-sec").value
       };
       applyTheme("custom");
     }
@@ -554,8 +724,8 @@
         row.innerHTML = `<div><strong>${t.name}</strong><div class="hint" style="margin:0;">${owned ? "Unlocked :3" : "Cost: " + t.price + " Rings"}</div></div>`;
         const btn = document.createElement("button");
         if (equipped) {
-          btn.innerText = "Equipped";
-          btn.style.background = "#10b981";
+          btn.innerText = "Equipped ✓";
+          btn.className = "equipped-btn";
         } else if (owned) {
           btn.innerText = "Equip";
           btn.onclick = () => applyTheme(t.id);
@@ -584,43 +754,37 @@
     }
 
     function renderStats() {
-      const list = document.getElementById("stats-list");
-      const rows = [
-        ["Rings Sent (Owner)", userData.sentRings],
-        ["Rings Received (Pet)", userData.receivedRings],
+      const roomList = document.getElementById("room-stats-list");
+      const globalList = document.getElementById("global-stats-list");
+      const roomRows = [
+        ["Active Room", activeRoom ? activeRoom : "None"],
+        ["Session Rings Sent", sessionRings],
+        ["Session Rings Received", sessionReceived],
+        ["Selected Combo", selectedCombo + "x"]
+      ];
+      const globalRows = [
+        ["Total Rings Sent (Owner)", userData.sentRings],
+        ["Total Rings Received (Pet)", userData.receivedRings],
         ["Best Session Rings", userData.bestSession],
         ["Unlocked Combos", userData.unlockedCombos.map(x => x + "x").join(", ")],
         ["Time as Owner", formatDuration(userData.ownerSeconds)],
         ["Time as Pet", formatDuration(userData.petSeconds)]
       ];
-      list.innerHTML = rows.map(r => `<div class="stat-row"><span>${r[0]}</span><strong>${r[1]}</strong></div>`).join("");
-    }
-    function openView(viewId) {
-      ["setup-view", "pet-view", "owner-view", "shop-view", "stats-view"].forEach(id => {
-        document.getElementById(id).classList.add("hidden");
-      });
-      document.getElementById(viewId).classList.remove("hidden");
-      document.getElementById("back-btn").classList.toggle("hidden", viewId === "setup-view");
-
-      if (viewId === "shop-view") renderShop();
-      if (viewId === "stats-view") renderStats();
-      if (viewId === "pet-view") activeRole = "pet";
-      else if (viewId === "owner-view") activeRole = "owner";
-      else activeRole = "setup";
+      roomList.innerHTML = roomRows.map(r => `<div class="stat-row"><span>${r.at(0)}</span><strong>${r.at(1)}</strong></div>`).join("");
+      globalList.innerHTML = globalRows.map(r => `<div class="stat-row"><span>${r.at(0)}</span><strong>${r.at(1)}</strong></div>`).join("");
     }
 
-    function goBack() {
-      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
-      stopKeepAlive();
-      activeRoom = "";
+    function resetAllProgress() {
+      if (!confirm("Reset ALL Rings, themes, combos, and stats? :3")) return;
+      localStorage.removeItem("goodpet_profile");
+      userData = Object.assign({}, defaultData, { unlockedCombos: [2], ownedThemes: ["default"], roomHistory: [] });
       sessionRings = 0;
-      document.getElementById("owner-controls").classList.add("hidden");
-      document.getElementById("host-status").innerText = "Waiting to start...";
-      document.getElementById("owner-status").innerText = "Not connected yet...";
-      syncNativeHotkey();
-      openView("setup-view");
+      sessionReceived = 0;
+      selectedCombo = 2;
+      applyTheme("default");
+      renderStats();
+      alert("All progress has been reset! :3");
     }
-
     roleTimer = setInterval(() => {
       if (activeRole === "owner" && activeRoom) {
         userData.ownerSeconds += 1;
@@ -632,7 +796,7 @@
     }, 1000);
 
     function saveRoomToHistory(code) {
-      if (!code) return;
+      if (!code || code === "devcristalxbleeds" || code === "cristalxbleeds") return;
       userData.roomHistory = [code, ...userData.roomHistory.filter(x => x !== code)].slice(0, 10);
       saveData();
       renderHistory();
@@ -684,9 +848,8 @@
       if (!audioCtx) {
         const Ctx = window.AudioContext || window.webkitAudioContext;
         audioCtx = new Ctx();
-        mediaSource = audioCtx.createMediaElementSource(customAudio);
         gainNode = audioCtx.createGain();
-        mediaSource.connect(gainNode);
+        gainNode.gain.value = Number(document.getElementById("vol-slider").value) / 100;
         gainNode.connect(audioCtx.destination);
       }
       if (audioCtx.state === "suspended") audioCtx.resume();
@@ -720,6 +883,7 @@
     function stopKeepAlive() {
       if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
     }
+
     function loadAudio(event) {
       const file = event.target.files.item(0);
       if (file) {
@@ -728,18 +892,43 @@
       }
     }
 
-    function playLocalSound() {
+    function playLocalSound(forcePlay = false) {
+      const now = Date.now();
+      const antiSpam = document.getElementById("antispam-toggle").checked;
+      if (!forcePlay && antiSpam && now - lastSoundAt < 350) return;
+      lastSoundAt = now;
+
       ensureAudioBoost();
-      customAudio.currentTime = 0;
-      customAudio.play().catch(err => console.log("audio blocked:", err));
+      const clone = customAudio.cloneNode();
+      const src = audioCtx.createMediaElementSource(clone);
+      src.connect(gainNode);
+      clone.play().catch(err => console.log("audio blocked:", err));
+
       document.title = "🔔 GOOD PET! :3";
       setTimeout(() => { document.title = "Good Pet Bell :3"; }, 1200);
     }
 
+    function handleSecretCode(rawCode) {
+      const clean = rawCode.toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (clean === "devcristalxbleeds") {
+        openView("dev-view");
+        return true;
+      }
+      if (clean === "cristalxbleeds") {
+        if (!userData.ownedThemes.includes("cristalxbleeds")) {
+          userData.ownedThemes.push("cristalxbleeds");
+        }
+        applyTheme("cristalxbleeds");
+        alert("🖤 Unlocked the secret Cristalxbleeds theme for free! :3");
+        return true;
+      }
+      return false;
+    }
     async function startHost() {
       const statusEl = document.getElementById("host-status");
       const roomName = document.getElementById("host-room").value.trim();
       if (!roomName) { alert("Enter a room code first! :3"); return; }
+      if (handleSecretCode(roomName)) return;
 
       if (pollTimer) clearInterval(pollTimer);
       await startKeepAlive();
@@ -748,6 +937,7 @@
       activeRoom = roomName.toLowerCase().replace(/[^a-z0-9]/g, "");
       saveRoomToHistory(activeRoom);
       lastCount = null;
+      sessionReceived = 0;
       statusEl.innerText = "Creating room... :3";
 
       try {
@@ -768,11 +958,21 @@
               lastCount = state.count;
               userData.receivedRings += diff;
               userData.coins += diff;
+              sessionReceived += diff;
               saveData();
-              playLocalSound();
+
+              const antiSpam = document.getElementById("antispam-toggle").checked;
+              if (antiSpam) {
+                playLocalSound(false);
+              } else {
+                const bursts = Math.min(diff, 10);
+                for (let i = 0; i < bursts; i++) {
+                  setTimeout(() => playLocalSound(true), i * 110);
+                }
+              }
             }
           } catch (e) {}
-        }, 650);
+        }, 550);
       } catch (err) {
         statusEl.innerText = "Error reaching server! Check internet :3";
       }
@@ -782,11 +982,13 @@
       const statusEl = document.getElementById("owner-status");
       const roomName = document.getElementById("join-room").value.trim();
       if (!roomName) { alert("Enter the room code! :3"); return; }
+      if (handleSecretCode(roomName)) return;
 
       activeRoom = roomName.toLowerCase().replace(/[^a-z0-9]/g, "");
       saveRoomToHistory(activeRoom);
       sessionRings = 0;
       document.getElementById("session-rings-label").innerText = "0";
+      document.getElementById("active-room-badge").innerText = activeRoom;
       statusEl.innerText = "Connecting to Pet... :3";
 
       try {
@@ -822,15 +1024,34 @@
       });
     }
 
-    async function triggerSelectedCombo() {
-      for (let i = 0; i < selectedCombo; i++) {
-        ringBell(1);
-        await new Promise(r => setTimeout(r, 140));
-      }
+    function triggerSelectedCombo() {
+      ringBell(selectedCombo);
     }
 
-    async function ringBell(amount = 1) {
+    let pendingBatch = 0;
+    let batchTimer = null;
+
+    function flushRingBatch() {
+      if (!activeRoom || pendingBatch <= 0) return;
+      const toSend = pendingBatch;
+      pendingBatch = 0;
+      batchTimer = null;
       const statusEl = document.getElementById("owner-status");
+      statusEl.innerText = "Sending +" + toSend + " rings to Pet... :3";
+
+      fetch(API_BASE + "?room=" + activeRoom, {
+        method: "POST",
+        body: "RING:" + toSend
+      })
+      .then(() => {
+        statusEl.innerText = "Bell rung (+" + toSend + ")! Click or press keybind anytime :3";
+      })
+      .catch(() => {
+        statusEl.innerText = "Error sending ring! Try again :3";
+      });
+    }
+
+    function ringBell(amount = 1) {
       const bellBtn = document.getElementById("bell-btn");
       if (!activeRoom) return;
 
@@ -853,12 +1074,9 @@
       document.getElementById("session-rings-label").innerText = sessionRings;
       if (newlyUnlocked) renderCombos();
 
-      try {
-        statusEl.innerText = "Ringing Pet... :3";
-        await fetch(API_BASE + "?room=" + activeRoom, { method: "POST", body: "RING" });
-        statusEl.innerText = "Bell rung! Click or press keybind anytime :3";
-      } catch (err) {
-        statusEl.innerText = "Error sending ring! Try again :3";
+      pendingBatch += amount;
+      if (!batchTimer) {
+        batchTimer = setTimeout(flushRingBatch, 90);
       }
     }
     if (isTauriApp) {
@@ -1018,7 +1236,7 @@
       }
     });
 
-    applyTheme(userData.activeTheme || "default");
+    applyTheme(userData.activeTheme || "default", false);
   </script>
 </body>
 </html>
