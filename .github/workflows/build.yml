@@ -23,11 +23,15 @@ jobs:
       - name: Install Tauri CLI
         run: npm install
 
-      - name: Prepare web folder
+      - name: Generate app icon & web folder
+        shell: pwsh
         run: |
-          mkdir web
-          copy index.html web\index.html
-          copy goodpet.mp3 web\goodpet.mp3
+          New-Item -ItemType Directory -Force -Path web | Out-Null
+          Copy-Item index.html web/index.html
+          Copy-Item goodpet.mp3 web/goodpet.mp3
+          $bytes = [Convert]::FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==")
+          [IO.File]::WriteAllBytes("icon.png", $bytes)
+          npx tauri icon icon.png
 
       - name: Build Windows installer
         run: npx tauri build --bundles nsis
@@ -60,20 +64,25 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Install Tauri CLI
         run: npm install
 
-      - name: Prepare web folder
+      - name: Generate app icon & web folder
         run: |
           mkdir -p web
           cp index.html web/index.html
           cp goodpet.mp3 web/goodpet.mp3
+          echo "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" | base64 -d > icon.png
+          npx tauri icon icon.png
 
       - name: Initialize Android project & build APK
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
+          NDK_HOME: /usr/local/lib/android/sdk/ndk/27.2.12479018
         run: |
+          NDK_DIR=$(ls -d /usr/local/lib/android/sdk/ndk/* | tail -n 1)
+          echo "Using NDK at $NDK_DIR"
+          export NDK_HOME="$NDK_DIR"
           npx tauri android init --ci
           npx tauri android build --apk --target aarch64
 
@@ -82,3 +91,4 @@ jobs:
         with:
           name: Good-Pet-Bell-Android
           path: src-tauri/gen/android/app/build/outputs/apk/universal/release/*.apk
+
