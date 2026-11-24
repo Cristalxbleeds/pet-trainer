@@ -29,8 +29,6 @@ jobs:
           New-Item -ItemType Directory -Force -Path web | Out-Null
           Copy-Item index.html web/index.html
           Copy-Item goodpet.mp3 web/goodpet.mp3
-          $bytes = [Convert]::FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==")
-          [IO.File]::WriteAllBytes("icon.png", $bytes)
           npx tauri icon icon.png
 
       - name: Build Windows installer
@@ -72,7 +70,6 @@ jobs:
           mkdir -p web
           cp index.html web/index.html
           cp goodpet.mp3 web/goodpet.mp3
-          echo "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" | base64 -d > icon.png
           npx tauri icon icon.png
 
       - name: Initialize Android project & build signed APK
@@ -93,3 +90,4 @@ jobs:
         with:
           name: Good-Pet-Bell-Android
           path: Good-Pet-Bell.apk
+
