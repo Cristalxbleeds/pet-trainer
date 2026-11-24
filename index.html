@@ -18,9 +18,18 @@
       --btn-text: #ffffff;
     }
 
+    html {
+      min-height: 100%;
+      background-color: var(--bg-color);
+    }
+
     body {
       font-family: system-ui, -apple-system, sans-serif;
-      background: radial-gradient(circle at top, var(--card-color) 0%, var(--bg-color) 75%);
+      background-color: var(--bg-color);
+      background-image: radial-gradient(circle at top, var(--card-color) 0%, var(--bg-color) 80%);
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      background-size: cover;
       color: var(--text-color);
       display: flex;
       flex-direction: column;
@@ -28,10 +37,10 @@
       justify-content: center;
       min-height: 100vh;
       margin: 0;
-      padding: 16px 16px 64px 16px;
+      padding: 16px 16px 68px 16px;
       box-sizing: border-box;
       text-align: center;
-      transition: background 0.25s ease, color 0.25s ease;
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
 
     body.checker-theme {
@@ -41,6 +50,8 @@
         linear-gradient(-45deg, #141417 25%, transparent 25%),
         linear-gradient(45deg, transparent 75%, #141417 75%),
         linear-gradient(-45deg, transparent 75%, #141417 75%);
+      background-attachment: fixed;
+      background-repeat: repeat;
       background-size: 36px 36px;
       background-position: 0 0, 0 18px, 18px -18px, -18px 0;
     }
@@ -308,12 +319,38 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
       padding: 8px 10px;
       background: var(--subcard-color);
       border: 1px solid var(--border-glow);
       border-radius: 9px;
       margin-bottom: 6px;
       font-size: 0.88rem;
+    }
+
+    .color-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .color-controls input[type="text"].hex-box {
+      width: 82px;
+      padding: 5px 7px;
+      margin: 0;
+      font-size: 0.8rem;
+      font-family: monospace;
+      text-transform: uppercase;
+    }
+
+    .color-controls input[type="color"] {
+      width: 34px;
+      height: 30px;
+      padding: 0;
+      border: none;
+      border-radius: 50%;
+      background: transparent;
+      cursor: pointer;
     }
 
     .keybind-row {
@@ -515,11 +552,42 @@
 
       <div id="custom-theme-editor" class="sub-box hidden">
         <div class="sub-box-header"><span>Custom Color Studio (5 Layers) :3</span></div>
-        <div class="stat-row"><span>Background</span><input type="color" id="cust-bg" value="#141318" onchange="applyCustomColors()"></div>
-        <div class="stat-row"><span>Main Card</span><input type="color" id="cust-card" value="#1f1d26" onchange="applyCustomColors()"></div>
-        <div class="stat-row"><span>Inner Panels</span><input type="color" id="cust-sub" value="#18161f" onchange="applyCustomColors()"></div>
-        <div class="stat-row"><span>Primary Accent</span><input type="color" id="cust-accent" value="#ec4899" onchange="applyCustomColors()"></div>
-        <div class="stat-row"><span>Secondary Glow</span><input type="color" id="cust-sec" value="#a855f7" onchange="applyCustomColors()"></div>
+        <div class="stat-row">
+          <span>Background</span>
+          <div class="color-controls">
+            <input type="text" class="hex-box" id="hex-bg" value="#141318" oninput="syncHexToPicker('bg')">
+            <input type="color" id="cust-bg" value="#141318" oninput="syncPickerToHex('bg')">
+          </div>
+        </div>
+        <div class="stat-row">
+          <span>Main Card</span>
+          <div class="color-controls">
+            <input type="text" class="hex-box" id="hex-card" value="#1f1d26" oninput="syncHexToPicker('card')">
+            <input type="color" id="cust-card" value="#1f1d26" oninput="syncPickerToHex('card')">
+          </div>
+        </div>
+        <div class="stat-row">
+          <span>Inner Panels</span>
+          <div class="color-controls">
+            <input type="text" class="hex-box" id="hex-sub" value="#18161f" oninput="syncHexToPicker('sub')">
+            <input type="color" id="cust-sub" value="#18161f" oninput="syncPickerToHex('sub')">
+          </div>
+        </div>
+        <div class="stat-row">
+          <span>Primary Accent</span>
+          <div class="color-controls">
+            <input type="text" class="hex-box" id="hex-accent" value="#ec4899" oninput="syncHexToPicker('accent')">
+            <input type="color" id="cust-accent" value="#ec4899" oninput="syncPickerToHex('accent')">
+          </div>
+        </div>
+        <div class="stat-row">
+          <span>Secondary Glow</span>
+          <div class="color-controls">
+            <input type="text" class="hex-box" id="hex-sec" value="#a855f7" oninput="syncHexToPicker('sec')">
+            <input type="color" id="cust-sec" value="#a855f7" oninput="syncPickerToHex('sec')">
+          </div>
+        </div>
+        <button id="apply-custom-btn" onclick="applyCustomColors(true)" style="margin-top: 8px;">✓ OK / Apply Colors :3</button>
       </div>
     </div>
 
@@ -583,7 +651,7 @@
   <script>
     const DEFAULT_SOUND = "goodpet.mp3";
     const isTauriApp = Boolean(window.__TAURI__);
-    const API_BASE = isTauriApp ? "https://pettrainer.vercel.app" : "/api/bell";
+    const API_BASE = isTauriApp ? "https://vercel.app" : "/api/bell";
 
     let pollTimer = null;
     let roleTimer = null;
@@ -600,9 +668,9 @@
     let isPinned = false;
     let lastSoundAt = 0;
 
-    let customAudio = new Audio(DEFAULT_SOUND);
     let audioCtx = null;
     let gainNode = null;
+    let decodedSoundBuffer = null;
 
     const defaultData = {
       coins: 0,
@@ -625,13 +693,49 @@
     }
 
     const THEMES = [
-      { id: "default", name: "Default Pink :3", price: 0, vars: { bg: "#141318", card: "#1f1d26", sub: "#18161f", input: "#2d2a38", accent: "#ec4899", sec: "#a855f7", text: "#f4f4f5", glow: "rgba(236, 72, 153, 0.35)", btnText: "#ffffff" } },
-      { id: "cyber", name: "Cyber Purple", price: 150, vars: { bg: "#0f0a1e", card: "#191133", sub: "#130c29", input: "#261a4d", accent: "#a855f7", sec: "#6366f1", text: "#f5f3ff", glow: "rgba(168, 85, 247, 0.38)", btnText: "#ffffff" } },
-      { id: "strawberry", name: "Strawberry Milk", price: 300, vars: { bg: "#241519", card: "#361f26", sub: "#2b181e", input: "#4a2b34", accent: "#fb7185", sec: "#fda4af", text: "#fff1f2", glow: "rgba(251, 113, 133, 0.38)", btnText: "#1f0d12" } },
-      { id: "miku", name: "Hatsune Miku 01", price: 500, vars: { bg: "#09181c", card: "#10282e", sub: "#0c1f24", input: "#173a42", accent: "#39c5bb", sec: "#e12885", text: "#e6fffd", glow: "rgba(57, 197, 187, 0.42)", btnText: "#051417" } },
-      { id: "trans", name: "Trans Pride 🏳️‍⚧️", price: 750, vars: { bg: "#121c29", card: "#1b2a3d", sub: "#162233", input: "#263b54", accent: "#5bcefa", sec: "#f5a9b8", text: "#ffffff", glow: "rgba(91, 206, 250, 0.42)", btnText: "#0f172a" } },
-      { id: "custom", name: "Custom Color Studio", price: 1500, vars: null },
-      { id: "cristalxbleeds", name: "Cristalxbleeds 🖤", price: 3000, checker: true, vars: { bg: "#09090b", card: "#121215", sub: "#0c0c0e", input: "#1e1e22", accent: "#ffffff", sec: "#a1a1aa", text: "#fafafa", glow: "rgba(255, 255, 255, 0.28)", btnText: "#09090b" } }
+      {
+        id: "default",
+        name: "Default Pink :3",
+        price: 0,
+        vars: { bg: "#141318", card: "#1f1d26", sub: "#18161f", input: "#2d2a38", accent: "#ec4899", sec: "#a855f7", text: "#f4f4f5", glow: "rgba(236, 72, 153, 0.35)", btnText: "#ffffff" }
+      },
+      {
+        id: "cyber",
+        name: "Cyber Purple",
+        price: 150,
+        vars: { bg: "#0f0a1e", card: "#191133", sub: "#130c29", input: "#261a4d", accent: "#a855f7", sec: "#6366f1", text: "#f5f3ff", glow: "rgba(168, 85, 247, 0.38)", btnText: "#ffffff" }
+      },
+      {
+        id: "strawberry",
+        name: "Strawberry Milk",
+        price: 300,
+        vars: { bg: "#4a1b17", card: "#69251e", sub: "#591f19", input: "#822e24", accent: "#F69BA0", sec: "#F37D84", text: "#F9C4CD", glow: "rgba(222, 63, 42, 0.45)", btnText: "#3b120e" }
+      },
+      {
+        id: "miku",
+        name: "Hatsune Miku 01",
+        price: 500,
+        vars: { bg: "#0f2229", card: "#17343d", sub: "#122a33", input: "#1e4552", accent: "#57BCBB", sec: "#0DB9A5", text: "#F1F8FA", glow: "rgba(113, 212, 209, 0.42)", btnText: "#08181c" }
+      },
+      {
+        id: "trans",
+        name: "Trans Pride 🏳️‍⚧️",
+        price: 750,
+        vars: { bg: "#2B2D42", card: "#353852", sub: "#232536", input: "#424666", accent: "#5BCEFA", sec: "#F5A9B8", text: "#FFFFFF", glow: "rgba(212, 193, 236, 0.45)", btnText: "#2B2D42" }
+      },
+      {
+        id: "custom",
+        name: "Custom Color Studio",
+        price: 1500,
+        vars: null
+      },
+      {
+        id: "cristalxbleeds",
+        name: "Cristalxbleeds 🖤",
+        price: 18000,
+        checker: true,
+        vars: { bg: "#09090b", card: "#121215", sub: "#0c0c0e", input: "#1e1e22", accent: "#ffffff", sec: "#a1a1aa", text: "#fafafa", glow: "rgba(255, 255, 255, 0.28)", btnText: "#09090b" }
+      }
     ];
 
     const COMBO_TIERS = [
@@ -641,6 +745,21 @@
       { mult: 7, req: 500 },
       { mult: 10, req: 1000 }
     ];
+
+    function syncPickerToHex(layer) {
+      const val = document.getElementById("cust-" + layer).value.toUpperCase();
+      document.getElementById("hex-" + layer).value = val;
+      applyCustomColors(false);
+    }
+
+    function syncHexToPicker(layer) {
+      let val = document.getElementById("hex-" + layer).value.trim();
+      if (!val.startsWith("#")) val = "#" + val;
+      if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+        document.getElementById("cust-" + layer).value = val;
+        applyCustomColors(false);
+      }
+    }
 
     function applyTheme(themeId, forceChecker = false) {
       const root = document.documentElement;
@@ -660,11 +779,12 @@
         root.style.setProperty("--border-glow", c.accent + "55");
         root.style.setProperty("--btn-text", "#ffffff");
         document.getElementById("custom-theme-editor").classList.remove("hidden");
-        document.getElementById("cust-bg").value = c.bg;
-        document.getElementById("cust-card").value = c.card;
-        document.getElementById("cust-sub").value = c.sub || c.bg;
-        document.getElementById("cust-accent").value = c.accent;
-        document.getElementById("cust-sec").value = c.sec || c.accent;
+
+        Array.of("bg", "card", "sub", "accent", "sec").forEach(k => {
+          const hexVal = (c[k] || c.bg).toUpperCase();
+          document.getElementById("cust-" + k).value = hexVal;
+          document.getElementById("hex-" + k).value = hexVal;
+        });
       } else {
         document.getElementById("custom-theme-editor").classList.add("hidden");
         const t = THEMES.find(x => x.id === themeId) || THEMES.at(0);
@@ -690,7 +810,8 @@
       }
       renderShop();
     }
-    function applyCustomColors() {
+
+    function applyCustomColors(showConfirm = false) {
       userData.customColors = {
         bg: document.getElementById("cust-bg").value,
         card: document.getElementById("cust-card").value,
@@ -699,8 +820,12 @@
         sec: document.getElementById("cust-sec").value
       };
       applyTheme("custom");
+      if (showConfirm) {
+        const btn = document.getElementById("apply-custom-btn");
+        btn.innerText = "✓ Colors Saved & Applied! :3";
+        setTimeout(() => { btn.innerText = "✓ OK / Apply Colors :3"; }, 1400);
+      }
     }
-
     function renderShop() {
       const list = document.getElementById("shop-list");
       list.innerHTML = "";
@@ -709,7 +834,7 @@
         const equipped = userData.activeTheme === t.id;
         const row = document.createElement("div");
         row.className = "shop-item";
-        row.innerHTML = `<div><strong>${t.name}</strong><div class="hint" style="margin:0;">${owned ? "Unlocked :3" : "Cost: " + t.price + " Rings"}</div></div>`;
+        row.innerHTML = `<div><strong>${t.name}</strong><div class="hint" style="margin:0;">${owned ? "Unlocked :3" : "Cost: " + t.price.toLocaleString() + " Rings"}</div></div>`;
         const btn = document.createElement("button");
         if (equipped) {
           btn.innerText = "Equipped ✓";
@@ -718,7 +843,7 @@
           btn.innerText = "Equip";
           btn.onclick = () => applyTheme(t.id);
         } else {
-          btn.innerText = "Buy (" + t.price + ")";
+          btn.innerText = "Buy (" + t.price.toLocaleString() + ")";
           btn.onclick = () => {
             if (userData.coins >= t.price) {
               userData.coins -= t.price;
@@ -865,7 +990,7 @@
       userData.coins += count;
       sessionReceived += count;
       saveData();
-      playLocalSound(false);
+      queueBurstAudio(count);
     }
     roleTimer = setInterval(() => {
       if (activeRole === "owner" && activeRoom) {
@@ -937,6 +1062,15 @@
       if (audioCtx.state === "suspended") audioCtx.resume();
     }
 
+    async function decodeDefaultSound() {
+      try {
+        ensureAudioBoost();
+        const res = await fetch(DEFAULT_SOUND);
+        const arr = await res.arrayBuffer();
+        decodedSoundBuffer = await audioCtx.decodeAudioData(arr);
+      } catch (e) {}
+    }
+
     function updateVolume(val) {
       document.getElementById("vol-label").innerText = val + "%";
       ensureAudioBoost();
@@ -966,28 +1100,67 @@
       if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
     }
 
-    function loadAudio(event) {
+    async function loadAudio(event) {
       const file = event.target.files.item(0);
       if (file) {
-        customAudio.src = URL.createObjectURL(file);
+        ensureAudioBoost();
+        const arr = await file.arrayBuffer();
+        decodedSoundBuffer = await audioCtx.decodeAudioData(arr);
         document.getElementById("sound-label").innerText = "Loaded custom sound: " + file.name + " :3";
       }
     }
 
-    function playLocalSound(forcePlay = false) {
+    async function playLocalSound(forcePlay = false) {
       const now = Date.now();
       const antiSpam = document.getElementById("antispam-toggle").checked;
-      if (!forcePlay && antiSpam && now - lastSoundAt < 350) return;
+      if (!forcePlay && antiSpam && now - lastSoundAt < 280) return;
       lastSoundAt = now;
 
       ensureAudioBoost();
-      const clone = customAudio.cloneNode();
-      const src = audioCtx.createMediaElementSource(clone);
-      src.connect(gainNode);
-      clone.play().catch(err => console.log("audio blocked:", err));
+      if (!decodedSoundBuffer) {
+        await decodeDefaultSound();
+      }
+      if (decodedSoundBuffer) {
+        const src = audioCtx.createBufferSource();
+        src.buffer = decodedSoundBuffer;
+        src.connect(gainNode);
+        src.start(0);
+      }
 
       document.title = "🔔 GOOD PET! :3";
-      setTimeout(() => { document.title = "Good Pet Bell :3"; }, 1200);
+      setTimeout(() => { document.title = "Good Pet Bell :3"; }, 900);
+    }
+
+    let audioQueue = 0;
+    let queueActive = false;
+
+    function processAudioQueue() {
+      if (audioQueue <= 0) {
+        queueActive = false;
+        return;
+      }
+      queueActive = true;
+      audioQueue -= 1;
+      playLocalSound(true);
+
+      let stepMs = 45;
+      if (audioQueue > 10) stepMs = 18;
+      else if (audioQueue > 4) stepMs = 28;
+      else if (audioQueue > 1) stepMs = 38;
+
+      setTimeout(processAudioQueue, stepMs);
+    }
+
+    function queueBurstAudio(count) {
+      const antiSpam = document.getElementById("antispam-toggle").checked;
+      if (antiSpam) {
+        playLocalSound(false);
+        return;
+      }
+      audioQueue = Math.min(audioQueue + count, 18);
+      if (!queueActive) {
+        processAudioQueue();
+      }
     }
 
     function handleSecretCode(rawCode) {
@@ -1015,6 +1188,7 @@
       if (pollTimer) clearInterval(pollTimer);
       await startKeepAlive();
       ensureAudioBoost();
+      if (!decodedSoundBuffer) decodeDefaultSound();
 
       activeRoom = roomName.toLowerCase().replace(/[^a-z0-9]/g, "");
       saveRoomToHistory(activeRoom);
@@ -1042,19 +1216,10 @@
               userData.coins += diff;
               sessionReceived += diff;
               saveData();
-
-              const antiSpam = document.getElementById("antispam-toggle").checked;
-              if (antiSpam) {
-                playLocalSound(false);
-              } else {
-                const bursts = Math.min(diff, 10);
-                for (let i = 0; i < bursts; i++) {
-                  setTimeout(() => playLocalSound(true), i * 110);
-                }
-              }
+              queueBurstAudio(diff);
             }
           } catch (e) {}
-        }, 550);
+        }, 250);
       } catch (err) {
         statusEl.innerText = "Error reaching server! Check internet :3";
       }
@@ -1138,7 +1303,7 @@
       if (!activeRoom) return;
 
       bellBtn.classList.add("pressed");
-      setTimeout(() => bellBtn.classList.remove("pressed"), 110);
+      setTimeout(() => bellBtn.classList.remove("pressed"), 90);
 
       sessionRings += amount;
       userData.sentRings += amount;
@@ -1158,7 +1323,7 @@
 
       pendingBatch += amount;
       if (!batchTimer) {
-        batchTimer = setTimeout(flushRingBatch, 90);
+        batchTimer = setTimeout(flushRingBatch, 40);
       }
     }
     if (isTauriApp) {
