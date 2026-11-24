@@ -1,0 +1,17 @@
+{
+  "name": "pet-trainer",
+  "version": "1.0.0",
+  "description": "Good Pet Bell - A fun pet trainer app",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step needed for static site'",
+    "lint": "echo 'No linter configured yet'"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^1.1.1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}
