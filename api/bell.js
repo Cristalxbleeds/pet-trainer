@@ -1,7 +1,6 @@
-// tiny in-memowy weway wunning diwectwy on vewcew :3
-const rooms = {};
+const rooms = globalThis.__goodpet_rooms || (globalThis.__goodpet_rooms = new Map());
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -10,25 +9,30 @@ export default function handler(req, res) {
     return res.status(200).end();
   }
 
-  const room = (req.query && req.query.room) || "default";
-  if (!rooms[room]) {
-    rooms[room] = { count: 0, joined: false };
+  const rawRoom = (req.query.room || "default").toString();
+  const room = rawRoom.toLowerCase().replace(/[^a-z0-9]/g, "") || "default";
+
+  if (!rooms.has(room)) {
+    rooms.set(room, { count: 0, joined: false, updatedAt: Date.now() });
   }
 
-  // adc sends a wing batch ow hewwo signaw :3
+  const state = rooms.get(room);
+
   if (req.method === "POST") {
-    const body = String(req.body || "");
-    if (body === "RING" || body.startsWith("RING:")) {
-      const amount = body.startsWith("RING:") ? Math.max(1, Math.min(100, parseInt(body.split(":")[1], 10) || 1)) : 1;
-      rooms[room].count += amount;
-      console.log("beww wung +" + amount + " in woom: " + room + " :3");
-    } else if (body === "HELLO") {
-      rooms[room].joined = true;
-      console.log("adc joined woom: " + room + " :3");
+    const body = typeof req.body === "string" ? req.body.trim() : "";
+    if (body === "HELLO") {
+      state.joined = true;
+      state.updatedAt = Date.now();
+    } else if (body.startsWith("RING:")) {
+      const amount = Math.max(1, Math.min(10000, parseInt(body.slice(5), 10) || 1));
+      state.count += amount;
+      state.updatedAt = Date.now();
+    } else if (body === "RING") {
+      state.count += 1;
+      state.updatedAt = Date.now();
     }
-    return res.status(200).json(rooms[room]);
+    return res.status(200).json({ ok: true, room, count: state.count, joined: state.joined });
   }
 
-  // suppowt checks fow new wings :3
-  return res.status(200).json(rooms[room]);
+  return res.status(200).json({ room, count: state.count, joined: state.joined });
 }
