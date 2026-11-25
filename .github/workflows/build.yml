@@ -39,6 +39,9 @@ jobs:
           $bmp.Save((Join-Path (Get-Location) "clean_icon.png"), [System.Drawing.Imaging.ImageFormat]::Png)
           $bmp.Dispose()
           npx tauri icon clean_icon.png
+          Copy-Item *.gif web/ -ErrorAction SilentlyContinue
+          Copy-Item *.png web/ -ErrorAction SilentlyContinue
+
 
       - name: Build Windows installer
         run: npx tauri build --bundles nsis
@@ -79,6 +82,8 @@ jobs:
           mkdir -p web
           cp index.html web/index.html
           cp goodpet.mp3 web/goodpet.mp3
+          cp *.gif web/ 2>/dev/null || true
+          cp *.png web/ 2>/dev/null || true
 
       - name: Initialize Android project & build signed APK
         env:
