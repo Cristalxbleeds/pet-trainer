@@ -701,7 +701,7 @@
 const isTauriApp = Boolean(window.__TAURI__);
 const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 const isWebVercel = window.location.hostname.endsWith("vercel.app");
-const API_BASE = isWebVercel ? "/api/bell" : "https://pettrainer.vercel.app";
+const API_BASE = isWebVercel ? "/api/bell" : "https://pettrainer.vercel.app/api/bell";
 
 
     let pollTimer = null;
