@@ -698,10 +698,10 @@
   <script>
     // === [CORE STATE & THEMES JS] ===
     const DEFAULT_SOUND = "goodpet.mp3";
-        const isTauriApp = Boolean(window.__TAURI__);
-    const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const isPackagedApp = isTauriApp || window.location.protocol !== "https:" && window.location.protocol !== "http:";
-    const API_BASE = isPackagedApp ? "https://vercel.app" : "/api/bell";
+const isTauriApp = Boolean(window.__TAURI__);
+const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const isWebVercel = window.location.hostname.endsWith("vercel.app");
+const API_BASE = isWebVercel ? "/api/bell" : "https://pettrainer.vercel.app";
 
 
     let pollTimer = null;
