@@ -1,4 +1,5 @@
 const rooms = globalThis.__goodpet_rooms || (globalThis.__goodpet_rooms = new Map());
+const SERVER_EPOCH = globalThis.__goodpet_epoch || (globalThis.__goodpet_epoch = Date.now().toString(36));
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -20,7 +21,11 @@ export default async function handler(req, res) {
 
   if (req.method === "POST") {
     const body = typeof req.body === "string" ? req.body.trim() : "";
-    if (body === "HELLO") {
+    if (body === "RESET") {
+      state.count = 0;
+      state.joined = false;
+      state.updatedAt = Date.now();
+    } else if (body === "HELLO") {
       state.joined = true;
       state.updatedAt = Date.now();
     } else if (body.startsWith("RING:")) {
@@ -31,8 +36,8 @@ export default async function handler(req, res) {
       state.count += 1;
       state.updatedAt = Date.now();
     }
-    return res.status(200).json({ ok: true, room, count: state.count, joined: state.joined });
+    return res.status(200).json({ ok: true, epoch: SERVER_EPOCH, room, count: state.count, joined: state.joined });
   }
 
-  return res.status(200).json({ room, count: state.count, joined: state.joined });
+  return res.status(200).json({ epoch: SERVER_EPOCH, room, count: state.count, joined: state.joined });
 }
