@@ -535,7 +535,8 @@
           Room: <strong id="active-room-badge" style="color: var(--accent-color);">-</strong> • Session Rings: <strong id="session-rings-label" style="color: var(--text-color);">0</strong>
         </div>
 
-        <button class="big-bell" id="bell-btn" onpointerdown="if(event.button===0){event.preventDefault();ringBell(1);}">RING FOR GOOD PET</button>
+        <button class="big-bell" id="bell-btn" onpointerdown="if(event.pointerType==='touch'||event.button===0){event.preventDefault();ringBell(1);}">RING FOR GOOD PET</button>
+
 
         <div class="sub-box">
           <div class="sub-box-header">
@@ -767,12 +768,12 @@
         mascot: "strawberry.gif",
         vars: { bg: "#8A1C26", card: "#C83F49", sub: "#9e242f", input: "#FA5053", accent: "#FFC4D0", sec: "#FC5A8D", text: "#FFFFFF", glow: "rgba(255, 196, 208, 0.45)", btnText: "#8A1C26" }
       },
-      {
+            {
         id: "miku",
         name: "Hatsune Miku 01",
         price: 500,
         mascot: "miku.gif",
-        vars: { bg: "#373b3e", card: "#2a2e30", sub: "#137a7f", input: "#1d5d61", accent: "#86cecb", sec: "#e12885", text: "#bec8d1", glow: "rgba(134, 206, 203, 0.45)", btnText: "#1f2426" }
+        vars: { bg: "#137a7f", card: "#86cecb", sub: "#bec8d1", input: "#ffffff", accent: "#e12885", sec: "#137a7f", text: "#1e2426", glow: "rgba(225, 40, 133, 0.45)", btnText: "#ffffff" }
       },
       {
         id: "transfem",
@@ -1322,12 +1323,15 @@
       }
     }
 
+        let lastEpoch = null;
+
     async function startHost(bypassSecret = false) {
       const statusEl = document.getElementById("host-status");
       const roomName = document.getElementById("host-room").value.trim();
       if (!roomName) { alert("Enter a room code first! :3"); return; }
       if (!bypassSecret && handleSecretCode(roomName)) return;
-      if (pollTimer) clearInterval(pollTimer);
+
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
       await startKeepAlive();
       ensureAudioBoost();
       if (!decodedSoundBuffer) await decodeDefaultSound();
@@ -1335,21 +1339,32 @@
       activeRoom = roomName.toLowerCase().replace(/[^a-z0-9]/g, "");
       saveRoomToHistory(activeRoom);
       lastCount = null;
+      lastEpoch = null;
       sessionReceived = 0;
       statusEl.innerText = "Creating room... :3";
 
       try {
+        if (activeRoom === "devcristalxbleeds") {
+          await fetch(API_BASE + "?room=" + activeRoom, { method: "POST", body: "RESET" });
+        }
         const res = await fetch(API_BASE + "?room=" + activeRoom);
         const data = await res.json();
         lastCount = data.count;
+        lastEpoch = data.epoch || null;
         statusEl.innerText = "Listening! Tell Owner to join: " + activeRoom + " :3";
 
         pollTimer = setInterval(async () => {
+          if (activeRole !== "pet" || !activeRoom) return;
           try {
             const check = await fetch(API_BASE + "?room=" + activeRoom);
             const state = await check.json();
             if (state.joined) {
               statusEl.innerText = "Owner connected! Ready for headpats :3";
+            }
+            if (state.epoch && lastEpoch && state.epoch !== lastEpoch) {
+              lastEpoch = state.epoch;
+              lastCount = state.count;
+              return;
             }
             if (lastCount !== null && state.count > lastCount) {
               const diff = state.count - lastCount;
@@ -1359,13 +1374,16 @@
               sessionReceived += diff;
               saveData();
               scheduleIncomingRings(diff);
+            } else if (state.count < lastCount) {
+              lastCount = state.count;
             }
           } catch (e) {}
-        }, 180);
+        }, 160);
       } catch (err) {
         statusEl.innerText = "Error reaching server! Check internet :3";
       }
     }
+
     // === [OWNER CLICKER PIPELINE, KEYBINDS & INIT JS] ===
     async function connectToHost(bypassSecret = false) {
       const statusEl = document.getElementById("owner-status");
@@ -1416,37 +1434,29 @@
       ringBell(selectedCombo);
     }
 
-    let pendingBatch = 0;
-    let isFlushing = false;
+            let pendingBatch = 0;
+    let batchTimer = null;
 
-    async function flushRingPipeline() {
-      if (isFlushing || !activeRoom || pendingBatch <= 0) return;
-      isFlushing = true;
+    function dispatchRingBatch() {
+      batchTimer = null;
+      if (!activeRoom || pendingBatch <= 0) return;
+      const toSend = pendingBatch;
+      pendingBatch = 0;
 
-      while (pendingBatch > 0 && activeRoom) {
-        const toSend = pendingBatch;
-        pendingBatch = 0;
-        const statusEl = document.getElementById("owner-status");
-        statusEl.innerText = "Sending +" + toSend + " rings to Pet... :3";
+      const statusEl = document.getElementById("owner-status");
+      statusEl.innerText = "Sending +" + toSend + " rings to Pet... :3";
 
-        try {
-          await fetch(API_BASE + "?room=" + activeRoom, {
-            method: "POST",
-            body: "RING:" + toSend
-          });
-          statusEl.innerText = "Bell rung (+" + toSend + ")! Click or press keybind anytime :3";
-        } catch (e) {
-          pendingBatch += toSend;
-          statusEl.innerText = "Retrying ring sync... :3";
-          await new Promise(r => setTimeout(r, 120));
-        }
-
-        if (pendingBatch > 0) {
-          await new Promise(r => setTimeout(r, 35));
-        }
-      }
-
-      isFlushing = false;
+      fetch(API_BASE + "?room=" + activeRoom, {
+        method: "POST",
+        body: "RING:" + toSend
+      })
+      .then(() => {
+        statusEl.innerText = "Bell rung (+" + toSend + ")! Click or press keybind anytime :3";
+      })
+      .catch(() => {
+        pendingBatch += toSend;
+        if (!batchTimer) batchTimer = setTimeout(dispatchRingBatch, 80);
+      });
     }
 
     function ringBell(amount = 1) {
@@ -1454,7 +1464,7 @@
       if (!activeRoom) return;
 
       bellBtn.classList.add("pressed");
-      setTimeout(() => bellBtn.classList.remove("pressed"), 70);
+      setTimeout(() => bellBtn.classList.remove("pressed"), 60);
 
       sessionRings += amount;
       userData.sentRings += amount;
@@ -1473,8 +1483,11 @@
       if (newlyUnlocked) renderCombos();
 
       pendingBatch += amount;
-      flushRingPipeline();
+      if (!batchTimer) {
+        batchTimer = setTimeout(dispatchRingBatch, 25);
+      }
     }
+
 
     if (isTauriApp) {
       document.getElementById("pin-btn").classList.remove("hidden");
