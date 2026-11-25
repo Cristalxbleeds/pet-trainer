@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Good Pet Bell :3</title>
   <style>
+    /* === [BASE & THEME BACKGROUND CSS] === */
     :root {
       --bg-color: #141318;
       --card-color: #1f1d26;
@@ -26,7 +27,7 @@
     body {
       font-family: system-ui, -apple-system, sans-serif;
       background-color: var(--bg-color);
-      background-image: radial-gradient(circle at top, var(--card-color) 0%, var(--bg-color) 80%);
+      background-image: radial-gradient(circle at top, var(--card-color) 0%, var(--bg-color) 82%);
       background-attachment: fixed;
       background-repeat: no-repeat;
       background-size: cover;
@@ -37,10 +38,10 @@
       justify-content: center;
       min-height: 100vh;
       margin: 0;
-      padding: 16px 16px 68px 16px;
+      padding: 16px 16px 76px 16px;
       box-sizing: border-box;
       text-align: center;
-      transition: background-color 0.25s ease, color 0.25s ease;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
 
     body.checker-theme {
@@ -65,7 +66,7 @@
       max-width: 430px;
       width: 100%;
       box-sizing: border-box;
-      transition: all 0.25s ease;
+      transition: all 0.2s ease;
     }
 
     .top-bar {
@@ -90,8 +91,7 @@
     }
 
     .pill-btn:hover {
-      filter: brightness(1.18);
-      background: var(--input-color);
+      filter: brightness(1.15);
     }
 
     .pill-btn.active-pin {
@@ -109,6 +109,7 @@
       font-weight: bold;
       color: var(--accent-color);
     }
+    /* === [UI CONTROLS & CUSTOM STUDIO CSS] === */
     input[type="text"], input[type="number"], input[type="file"], button {
       width: 100%;
       padding: 11px 12px;
@@ -135,7 +136,7 @@
       color: var(--btn-text);
       font-weight: bold;
       cursor: pointer;
-      transition: transform 0.1s, filter 0.2s, box-shadow 0.2s;
+      transition: transform 0.08s, filter 0.2s, box-shadow 0.2s;
     }
 
     button:hover {
@@ -186,6 +187,8 @@
       margin-top: 10px;
       box-shadow: 0 8px 24px var(--border-glow);
       letter-spacing: 0.5px;
+      user-select: none;
+      touch-action: manipulation;
     }
 
     .hidden {
@@ -225,6 +228,7 @@
       margin-bottom: 8px;
       color: var(--text-color);
     }
+    /* === [COMBOS, COLOR CONTROLS & MASCOT CORNER CSS] === */
     .combo-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -353,6 +357,20 @@
       cursor: pointer;
     }
 
+    .preview-strip {
+      display: flex;
+      gap: 6px;
+      margin: 8px 0;
+      height: 22px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border-glow);
+    }
+
+    .preview-strip div {
+      flex: 1;
+    }
+
     .keybind-row {
       display: flex;
       gap: 8px;
@@ -427,7 +445,7 @@
       pointer-events: none;
     }
 
-    .kuromi-mascot {
+    .theme-mascot {
       width: 68px;
       height: 68px;
       object-fit: contain;
@@ -447,6 +465,7 @@
   </style>
 </head>
 <body>
+  <!-- === [SETUP, PET & OWNER HTML] === -->
   <div class="card">
     <div class="top-bar">
       <button class="pill-btn hidden" id="back-btn" onclick="goBack()">← Back</button>
@@ -494,7 +513,7 @@
       </div>
 
       <button onclick="startHost()">Start Listening</button>
-      <button onclick="playLocalSound(true)" class="secondary-btn" style="margin-top: 8px;">Test Sound Locally</button>
+      <button onclick="playImmediateSound()" class="secondary-btn" style="margin-top: 8px;">Test Sound Locally</button>
       <div class="status" id="host-status">Waiting to start...</div>
     </div>
 
@@ -516,7 +535,7 @@
           Room: <strong id="active-room-badge" style="color: var(--accent-color);">-</strong> • Session Rings: <strong id="session-rings-label" style="color: var(--text-color);">0</strong>
         </div>
 
-        <button class="big-bell" id="bell-btn" onclick="ringBell(1)">RING FOR GOOD PET</button>
+        <button class="big-bell" id="bell-btn" onpointerdown="if(event.button===0){event.preventDefault();ringBell(1);}">RING FOR GOOD PET</button>
 
         <div class="sub-box">
           <div class="sub-box-header">
@@ -545,49 +564,72 @@
 
       <div class="status" id="owner-status">Not connected yet...</div>
     </div>
+    <!-- === [SHOP, STATS & DEVSECRETROOM HTML] === -->
     <div id="shop-view" class="hidden">
       <h2 style="margin-top: 4px;">Theme Shop :3</h2>
       <p class="hint">Earn 1 Ring per click or receive to unlock themes!</p>
       <div id="shop-list" style="text-align: left;"></div>
 
       <div id="custom-theme-editor" class="sub-box hidden">
-        <div class="sub-box-header"><span>Custom Color Studio (5 Layers) :3</span></div>
+        <div class="sub-box-header">
+          <span>Custom Color Studio (5 Layers) :3</span>
+        </div>
+        <div class="preview-strip" id="custom-preview-strip">
+          <div id="prev-bg"></div>
+          <div id="prev-card"></div>
+          <div id="prev-sub"></div>
+          <div id="prev-accent"></div>
+          <div id="prev-sec"></div>
+        </div>
         <div class="stat-row">
           <span>Background</span>
           <div class="color-controls">
-            <input type="text" class="hex-box" id="hex-bg" value="#141318" oninput="syncHexToPicker('bg')">
-            <input type="color" id="cust-bg" value="#141318" oninput="syncPickerToHex('bg')">
+            <input type="text" class="hex-box" id="hex-bg" value="#18181B" oninput="stageHexToPicker('bg')">
+            <input type="color" id="cust-bg" value="#18181b" oninput="stagePickerToHex('bg')">
           </div>
         </div>
         <div class="stat-row">
           <span>Main Card</span>
           <div class="color-controls">
-            <input type="text" class="hex-box" id="hex-card" value="#1f1d26" oninput="syncHexToPicker('card')">
-            <input type="color" id="cust-card" value="#1f1d26" oninput="syncPickerToHex('card')">
+            <input type="text" class="hex-box" id="hex-card" value="#27272A" oninput="stageHexToPicker('card')">
+            <input type="color" id="cust-card" value="#27272a" oninput="stagePickerToHex('card')">
           </div>
         </div>
         <div class="stat-row">
           <span>Inner Panels</span>
           <div class="color-controls">
-            <input type="text" class="hex-box" id="hex-sub" value="#18161f" oninput="syncHexToPicker('sub')">
-            <input type="color" id="cust-sub" value="#18161f" oninput="syncPickerToHex('sub')">
+            <input type="text" class="hex-box" id="hex-sub" value="#3F3F46" oninput="stageHexToPicker('sub')">
+            <input type="color" id="cust-sub" value="#3f3f46" oninput="stagePickerToHex('sub')">
           </div>
         </div>
         <div class="stat-row">
           <span>Primary Accent</span>
           <div class="color-controls">
-            <input type="text" class="hex-box" id="hex-accent" value="#ec4899" oninput="syncHexToPicker('accent')">
-            <input type="color" id="cust-accent" value="#ec4899" oninput="syncPickerToHex('accent')">
+            <input type="text" class="hex-box" id="hex-accent" value="#A1A1AA" oninput="stageHexToPicker('accent')">
+            <input type="color" id="cust-accent" value="#a1a1aa" oninput="stagePickerToHex('accent')">
           </div>
         </div>
         <div class="stat-row">
           <span>Secondary Glow</span>
           <div class="color-controls">
-            <input type="text" class="hex-box" id="hex-sec" value="#a855f7" oninput="syncHexToPicker('sec')">
-            <input type="color" id="cust-sec" value="#a855f7" oninput="syncPickerToHex('sec')">
+            <input type="text" class="hex-box" id="hex-sec" value="#E4E4E7" oninput="stageHexToPicker('sec')">
+            <input type="color" id="cust-sec" value="#e4e4e7" oninput="stagePickerToHex('sec')">
           </div>
         </div>
-        <button id="apply-custom-btn" onclick="applyCustomColors(true)" style="margin-top: 8px;">✓ OK / Apply Colors :3</button>
+
+        <div class="row-flex" style="margin-top: 6px;">
+          <button id="apply-custom-btn" onclick="commitCustomColors()">✓ Apply Changes</button>
+          <button onclick="revertCustomColors()" class="secondary-btn">↺ Revert</button>
+        </div>
+
+        <div class="sub-box" style="margin-top: 10px;">
+          <div class="sub-box-header"><span>Saved Custom Looks :3</span></div>
+          <div class="row-flex">
+            <input type="text" id="preset-name-input" placeholder="Look name (e.g. Gay Neon)">
+            <button class="small-action" onclick="saveCustomPreset()">Save</button>
+          </div>
+          <div class="history-list" id="custom-presets-list"></div>
+        </div>
       </div>
     </div>
 
@@ -634,21 +676,26 @@
         </div>
       </div>
 
-      <div class="sub-box">
-        <div class="sub-box-header"><span>Audio &amp; Burst Testers</span></div>
-        <div class="row-flex">
-          <button onclick="playLocalSound(true)">Test Sound</button>
-          <button onclick="devSimulateReceive(10)" class="secondary-btn">Simulate +10 Pet Rings</button>
-        </div>
+   <div class="sub-box">
+     <div class="sub-box-header"><span>Online Room &amp; Audio Testers</span></div>
+     <div class="row-flex">
+       <button onclick="playImmediateSound()">Test Sound</button>
+       <button onclick="devSimulateReceive(10)" class="secondary-btn">Simulate +10 Pet Rings</button>
+     </div>
+     <div class="row-flex" style="margin-top: 4px;">
+       <button onclick="devJoinSecretRoom('pet')" class="secondary-btn">Join as Pet (dev room)</button>
+       <button onclick="devJoinSecretRoom('owner')" class="secondary-btn">Join as Owner (dev room)</button>
       </div>
     </div>
   </div>
+  </div>
 
   <div class="corner-brand">
-    <img id="kuromi-img" class="kuromi-mascot hidden" src="kuromi.gif" onerror="if(!this.dataset.tried){this.dataset.tried=1;this.src='kuromi.png';}else{this.classList.add('hidden');}" alt="Kuromi :3">
+    <img id="mascot-img" class="theme-mascot hidden" src="" alt="Theme Mascot :3">
     <div class="credit-footer">Made By: @Cristalxbleeds</div>
   </div>
   <script>
+    // === [CORE STATE & THEMES JS] ===
     const DEFAULT_SOUND = "goodpet.mp3";
     const isTauriApp = Boolean(window.__TAURI__);
     const API_BASE = isTauriApp ? "https://vercel.app" : "/api/bell";
@@ -672,6 +719,8 @@
     let gainNode = null;
     let decodedSoundBuffer = null;
 
+    const PURE_GRAY_CUSTOM = { bg: "#18181b", card: "#27272a", sub: "#3f3f46", accent: "#a1a1aa", sec: "#e4e4e7" };
+
     const defaultData = {
       coins: 0,
       sentRings: 0,
@@ -682,11 +731,15 @@
       unlockedCombos: Array.of(2),
       ownedThemes: Array.of("default"),
       activeTheme: "default",
-      customColors: { bg: "#141318", card: "#1f1d26", sub: "#18161f", accent: "#ec4899", sec: "#a855f7" },
+      customColors: Object.assign({}, PURE_GRAY_CUSTOM),
+      customPresets: [],
       roomHistory: []
     };
 
     let userData = Object.assign({}, defaultData, JSON.parse(localStorage.getItem("goodpet_profile") || "{}"));
+    if (!userData.customPresets) userData.customPresets = [];
+    let stagedCustom = Object.assign({}, PURE_GRAY_CUSTOM, userData.customColors);
+
     function saveData() {
       localStorage.setItem("goodpet_profile", JSON.stringify(userData));
       document.getElementById("coin-display").innerText = "🔔 " + userData.coins + " Rings";
@@ -697,36 +750,49 @@
         id: "default",
         name: "Default Pink :3",
         price: 0,
+        mascot: null,
         vars: { bg: "#141318", card: "#1f1d26", sub: "#18161f", input: "#2d2a38", accent: "#ec4899", sec: "#a855f7", text: "#f4f4f5", glow: "rgba(236, 72, 153, 0.35)", btnText: "#ffffff" }
       },
       {
         id: "cyber",
         name: "Cyber Purple",
         price: 150,
+        mascot: null,
         vars: { bg: "#0f0a1e", card: "#191133", sub: "#130c29", input: "#261a4d", accent: "#a855f7", sec: "#6366f1", text: "#f5f3ff", glow: "rgba(168, 85, 247, 0.38)", btnText: "#ffffff" }
       },
       {
         id: "strawberry",
         name: "Strawberry Milk",
         price: 300,
-        vars: { bg: "#4a1b17", card: "#69251e", sub: "#591f19", input: "#822e24", accent: "#F69BA0", sec: "#F37D84", text: "#F9C4CD", glow: "rgba(222, 63, 42, 0.45)", btnText: "#3b120e" }
+        mascot: "strawberry.gif",
+        vars: { bg: "#8A1C26", card: "#C83F49", sub: "#9e242f", input: "#FA5053", accent: "#FFC4D0", sec: "#FC5A8D", text: "#FFFFFF", glow: "rgba(255, 196, 208, 0.45)", btnText: "#8A1C26" }
       },
       {
         id: "miku",
         name: "Hatsune Miku 01",
         price: 500,
-        vars: { bg: "#0f2229", card: "#17343d", sub: "#122a33", input: "#1e4552", accent: "#57BCBB", sec: "#0DB9A5", text: "#F1F8FA", glow: "rgba(113, 212, 209, 0.42)", btnText: "#08181c" }
+        mascot: "miku.gif",
+        vars: { bg: "#373b3e", card: "#2a2e30", sub: "#137a7f", input: "#1d5d61", accent: "#86cecb", sec: "#e12885", text: "#bec8d1", glow: "rgba(134, 206, 203, 0.45)", btnText: "#1f2426" }
       },
       {
-        id: "trans",
-        name: "Trans Pride 🏳️‍⚧️",
+        id: "transfem",
+        name: "Transfem 🏳️‍⚧️",
         price: 750,
-        vars: { bg: "#2B2D42", card: "#353852", sub: "#232536", input: "#424666", accent: "#5BCEFA", sec: "#F5A9B8", text: "#FFFFFF", glow: "rgba(212, 193, 236, 0.45)", btnText: "#2B2D42" }
+        mascot: "blahaj.gif",
+        vars: { bg: "#74DEFF", card: "#FFE1ED", sub: "#FFB5D6", input: "#FFFFFF", accent: "#FF8CBF", sec: "#74DEFF", text: "#4a1c35", glow: "rgba(255, 140, 191, 0.48)", btnText: "#3a1027" }
+      },
+      {
+        id: "transmasc",
+        name: "Transmasc 🏳️‍⚧️",
+        price: 750,
+        mascot: "blahaj.gif",
+        vars: { bg: "#FF8ABE", card: "#CCF5FF", sub: "#99EBFF", input: "#FFFFFF", accent: "#74DFFF", sec: "#FF8ABE", text: "#143747", glow: "rgba(116, 223, 255, 0.48)", btnText: "#0d2b38" }
       },
       {
         id: "custom",
         name: "Custom Color Studio",
         price: 1500,
+        mascot: null,
         vars: null
       },
       {
@@ -734,6 +800,7 @@
         name: "Cristalxbleeds 🖤",
         price: 18000,
         checker: true,
+        mascot: "kuromi.gif",
         vars: { bg: "#09090b", card: "#121215", sub: "#0c0c0e", input: "#1e1e22", accent: "#ffffff", sec: "#a1a1aa", text: "#fafafa", glow: "rgba(255, 255, 255, 0.28)", btnText: "#09090b" }
       }
     ];
@@ -746,52 +813,141 @@
       { mult: 10, req: 1000 }
     ];
 
-    function syncPickerToHex(layer) {
-      const val = document.getElementById("cust-" + layer).value.toUpperCase();
-      document.getElementById("hex-" + layer).value = val;
-      applyCustomColors(false);
+    function setMascotImage(fileName) {
+      const img = document.getElementById("mascot-img");
+      if (!fileName) {
+        img.classList.add("hidden");
+        img.removeAttribute("src");
+        return;
+      }
+      img.dataset.tried = "";
+      img.onerror = () => {
+        if (!img.dataset.tried && fileName.endsWith(".gif")) {
+          img.dataset.tried = "1";
+          img.src = fileName.replace(".gif", ".png");
+        } else {
+          img.classList.add("hidden");
+        }
+      };
+      img.src = fileName;
+      img.classList.remove("hidden");
     }
 
-    function syncHexToPicker(layer) {
+    function updateCustomPreviewStrip() {
+      document.getElementById("prev-bg").style.background = stagedCustom.bg;
+      document.getElementById("prev-card").style.background = stagedCustom.card;
+      document.getElementById("prev-sub").style.background = stagedCustom.sub;
+      document.getElementById("prev-accent").style.background = stagedCustom.accent;
+      document.getElementById("prev-sec").style.background = stagedCustom.sec;
+    }
+
+    function syncCustomInputsFromStaged() {
+      Array.of("bg", "card", "sub", "accent", "sec").forEach(k => {
+        const hexVal = (stagedCustom[k] || PURE_GRAY_CUSTOM[k]).toUpperCase();
+        document.getElementById("cust-" + k).value = hexVal;
+        document.getElementById("hex-" + k).value = hexVal;
+      });
+      updateCustomPreviewStrip();
+    }
+
+    function stagePickerToHex(layer) {
+      const val = document.getElementById("cust-" + layer).value.toUpperCase();
+      document.getElementById("hex-" + layer).value = val;
+      stagedCustom[layer] = val;
+      updateCustomPreviewStrip();
+    }
+
+    function stageHexToPicker(layer) {
       let val = document.getElementById("hex-" + layer).value.trim();
       if (!val.startsWith("#")) val = "#" + val;
       if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
         document.getElementById("cust-" + layer).value = val;
-        applyCustomColors(false);
+        stagedCustom[layer] = val.toUpperCase();
+        updateCustomPreviewStrip();
       }
     }
 
+    function commitCustomColors() {
+      userData.customColors = Object.assign({}, stagedCustom);
+      applyTheme("custom");
+      const btn = document.getElementById("apply-custom-btn");
+      btn.innerText = "✓ Applied! :3";
+      setTimeout(() => { btn.innerText = "✓ Apply Changes"; }, 1200);
+    }
+
+    function revertCustomColors() {
+      stagedCustom = Object.assign({}, PURE_GRAY_CUSTOM, userData.customColors);
+      syncCustomInputsFromStaged();
+    }
+
+    function saveCustomPreset() {
+      const input = document.getElementById("preset-name-input");
+      const name = input.value.trim();
+      if (!name) { alert("Type a name for your custom look first! :3"); return; }
+      userData.customPresets = userData.customPresets.filter(p => p.name.toLowerCase() !== name.toLowerCase());
+      userData.customPresets.unshift({ name: name, colors: Object.assign({}, stagedCustom) });
+      input.value = "";
+      saveData();
+      renderCustomPresets();
+    }
+
+    function renderCustomPresets() {
+      const list = document.getElementById("custom-presets-list");
+      if (!userData.customPresets || userData.customPresets.length === 0) {
+        list.innerHTML = `<div class="hint" style="margin:0;">No saved custom looks yet :3</div>`;
+        return;
+      }
+      list.innerHTML = "";
+      userData.customPresets.forEach((p, idx) => {
+        const item = document.createElement("div");
+        item.className = "history-item";
+        const span = document.createElement("span");
+        span.innerText = p.name;
+        span.onclick = () => {
+          stagedCustom = Object.assign({}, PURE_GRAY_CUSTOM, p.colors);
+          syncCustomInputsFromStaged();
+          commitCustomColors();
+        };
+        const del = document.createElement("button");
+        del.innerText = "✕";
+        del.onclick = () => {
+          userData.customPresets.splice(idx, 1);
+          saveData();
+          renderCustomPresets();
+        };
+        item.appendChild(span);
+        item.appendChild(del);
+        list.appendChild(item);
+      });
+    }
+    // === [APPLYTHEME, SHOP, STATS & DEVSECRETROOM JS] ===
     function applyTheme(themeId, forceChecker = false) {
       const root = document.documentElement;
-      const kuromiEl = document.getElementById("kuromi-img");
 
       if (themeId === "custom") {
         document.body.classList.toggle("checker-theme", forceChecker);
-        kuromiEl.classList.toggle("hidden", !forceChecker);
-        const c = userData.customColors;
+        setMascotImage(forceChecker ? "kuromi.gif" : null);
+        const c = Object.assign({}, PURE_GRAY_CUSTOM, userData.customColors);
         root.style.setProperty("--bg-color", c.bg);
         root.style.setProperty("--card-color", c.card);
-        root.style.setProperty("--subcard-color", c.sub || c.bg);
+        root.style.setProperty("--subcard-color", c.sub);
         root.style.setProperty("--input-color", c.card);
         root.style.setProperty("--accent-color", c.accent);
-        root.style.setProperty("--accent-secondary", c.sec || c.accent);
+        root.style.setProperty("--accent-secondary", c.sec);
         root.style.setProperty("--text-color", "#ffffff");
         root.style.setProperty("--border-glow", c.accent + "55");
         root.style.setProperty("--btn-text", "#ffffff");
         document.getElementById("custom-theme-editor").classList.remove("hidden");
-
-        Array.of("bg", "card", "sub", "accent", "sec").forEach(k => {
-          const hexVal = (c[k] || c.bg).toUpperCase();
-          document.getElementById("cust-" + k).value = hexVal;
-          document.getElementById("hex-" + k).value = hexVal;
-        });
+        stagedCustom = Object.assign({}, c);
+        syncCustomInputsFromStaged();
+        renderCustomPresets();
       } else {
         document.getElementById("custom-theme-editor").classList.add("hidden");
         const t = THEMES.find(x => x.id === themeId) || THEMES.at(0);
         const v = t.vars;
         const isChecker = Boolean(t.checker) || forceChecker;
         document.body.classList.toggle("checker-theme", isChecker);
-        kuromiEl.classList.toggle("hidden", !isChecker);
+        setMascotImage(forceChecker ? "kuromi.gif" : t.mascot);
 
         root.style.setProperty("--bg-color", v.bg);
         root.style.setProperty("--card-color", v.card);
@@ -811,21 +967,6 @@
       renderShop();
     }
 
-    function applyCustomColors(showConfirm = false) {
-      userData.customColors = {
-        bg: document.getElementById("cust-bg").value,
-        card: document.getElementById("cust-card").value,
-        sub: document.getElementById("cust-sub").value,
-        accent: document.getElementById("cust-accent").value,
-        sec: document.getElementById("cust-sec").value
-      };
-      applyTheme("custom");
-      if (showConfirm) {
-        const btn = document.getElementById("apply-custom-btn");
-        btn.innerText = "✓ Colors Saved & Applied! :3";
-        setTimeout(() => { btn.innerText = "✓ OK / Apply Colors :3"; }, 1400);
-      }
-    }
     function renderShop() {
       const list = document.getElementById("shop-list");
       list.innerHTML = "";
@@ -893,8 +1034,11 @@
       userData = Object.assign({}, defaultData, {
         unlockedCombos: Array.of(2),
         ownedThemes: Array.of("default"),
+        customColors: Object.assign({}, PURE_GRAY_CUSTOM),
+        customPresets: [],
         roomHistory: []
       });
+      stagedCustom = Object.assign({}, PURE_GRAY_CUSTOM);
       sessionRings = 0;
       sessionReceived = 0;
       selectedCombo = 2;
@@ -990,8 +1134,9 @@
       userData.coins += count;
       sessionReceived += count;
       saveData();
-      queueBurstAudio(count);
+      scheduleIncomingRings(count);
     }
+    // === [LIVE 1:1 AUDIO ENGINE & ROOM SYNC JS] ===
     roleTimer = setInterval(() => {
       if (activeRole === "owner" && activeRoom) {
         userData.ownerSeconds += 1;
@@ -1110,57 +1255,42 @@
       }
     }
 
-    async function playLocalSound(forcePlay = false) {
-      const now = Date.now();
+    function triggerAudioNodeAt(whenTime) {
+      if (!decodedSoundBuffer || !audioCtx) return;
+      const src = audioCtx.createBufferSource();
+      src.buffer = decodedSoundBuffer;
+      src.connect(gainNode);
+      src.start(whenTime);
+    }
+
+    async function playImmediateSound() {
+      ensureAudioBoost();
+      if (!decodedSoundBuffer) await decodeDefaultSound();
+      triggerAudioNodeAt(audioCtx.currentTime);
+      document.title = "🔔 GOOD PET! :3";
+      setTimeout(() => { document.title = "Good Pet Bell :3"; }, 800);
+    }
+
+    async function scheduleIncomingRings(count) {
       const antiSpam = document.getElementById("antispam-toggle").checked;
-      if (!forcePlay && antiSpam && now - lastSoundAt < 280) return;
-      lastSoundAt = now;
+      const nowMs = Date.now();
+      if (antiSpam && nowMs - lastSoundAt < 260) return;
+      lastSoundAt = nowMs;
 
       ensureAudioBoost();
-      if (!decodedSoundBuffer) {
-        await decodeDefaultSound();
+      if (!decodedSoundBuffer) await decodeDefaultSound();
+      if (!decodedSoundBuffer) return;
+
+      const voices = antiSpam ? 1 : Math.min(count, 100);
+      const spacingSec = voices <= 1 ? 0 : Math.min(0.05, 0.85 / voices);
+      const baseTime = audioCtx.currentTime;
+
+      for (let i = 0; i < voices; i++) {
+        triggerAudioNodeAt(baseTime + i * spacingSec);
       }
-      if (decodedSoundBuffer) {
-        const src = audioCtx.createBufferSource();
-        src.buffer = decodedSoundBuffer;
-        src.connect(gainNode);
-        src.start(0);
-      }
 
-      document.title = "🔔 GOOD PET! :3";
-      setTimeout(() => { document.title = "Good Pet Bell :3"; }, 900);
-    }
-
-    let audioQueue = 0;
-    let queueActive = false;
-
-    function processAudioQueue() {
-      if (audioQueue <= 0) {
-        queueActive = false;
-        return;
-      }
-      queueActive = true;
-      audioQueue -= 1;
-      playLocalSound(true);
-
-      let stepMs = 45;
-      if (audioQueue > 10) stepMs = 18;
-      else if (audioQueue > 4) stepMs = 28;
-      else if (audioQueue > 1) stepMs = 38;
-
-      setTimeout(processAudioQueue, stepMs);
-    }
-
-    function queueBurstAudio(count) {
-      const antiSpam = document.getElementById("antispam-toggle").checked;
-      if (antiSpam) {
-        playLocalSound(false);
-        return;
-      }
-      audioQueue = Math.min(audioQueue + count, 18);
-      if (!queueActive) {
-        processAudioQueue();
-      }
+      document.title = "🔔 +" + count + " GOOD PET! :3";
+      setTimeout(() => { document.title = "Good Pet Bell :3"; }, 850);
     }
 
     function handleSecretCode(rawCode) {
@@ -1172,23 +1302,35 @@
       if (clean === "cristalxbleeds") {
         if (!userData.ownedThemes.includes("cristalxbleeds")) {
           userData.ownedThemes.push("cristalxbleeds");
+          applyTheme("cristalxbleeds");
+          alert("🖤 Unlocked the secret Cristalxbleeds theme for free! :3");
         }
-        applyTheme("cristalxbleeds");
-        alert("🖤 Unlocked the secret Cristalxbleeds theme for free! :3");
-        return true;
+        return false;
       }
       return false;
     }
-    async function startHost() {
+
+    function devJoinSecretRoom(role) {
+      if (role === "pet") {
+        document.getElementById("host-room").value = "devcristalxbleeds";
+        openView("pet-view");
+        startHost(true);
+      } else {
+        document.getElementById("join-room").value = "devcristalxbleeds";
+        openView("owner-view");
+        connectToHost(true);
+      }
+    }
+
+    async function startHost(bypassSecret = false) {
       const statusEl = document.getElementById("host-status");
       const roomName = document.getElementById("host-room").value.trim();
       if (!roomName) { alert("Enter a room code first! :3"); return; }
-      if (handleSecretCode(roomName)) return;
-
+      if (!bypassSecret && handleSecretCode(roomName)) return;
       if (pollTimer) clearInterval(pollTimer);
       await startKeepAlive();
       ensureAudioBoost();
-      if (!decodedSoundBuffer) decodeDefaultSound();
+      if (!decodedSoundBuffer) await decodeDefaultSound();
 
       activeRoom = roomName.toLowerCase().replace(/[^a-z0-9]/g, "");
       saveRoomToHistory(activeRoom);
@@ -1216,21 +1358,20 @@
               userData.coins += diff;
               sessionReceived += diff;
               saveData();
-              queueBurstAudio(diff);
+              scheduleIncomingRings(diff);
             }
           } catch (e) {}
-        }, 250);
+        }, 180);
       } catch (err) {
         statusEl.innerText = "Error reaching server! Check internet :3";
       }
     }
-
-    async function connectToHost() {
+    // === [OWNER CLICKER PIPELINE, KEYBINDS & INIT JS] ===
+    async function connectToHost(bypassSecret = false) {
       const statusEl = document.getElementById("owner-status");
       const roomName = document.getElementById("join-room").value.trim();
       if (!roomName) { alert("Enter the room code! :3"); return; }
-      if (handleSecretCode(roomName)) return;
-
+   if (!bypassSecret && handleSecretCode(roomName)) return;
       activeRoom = roomName.toLowerCase().replace(/[^a-z0-9]/g, "");
       saveRoomToHistory(activeRoom);
       sessionRings = 0;
@@ -1276,26 +1417,36 @@
     }
 
     let pendingBatch = 0;
-    let batchTimer = null;
+    let isFlushing = false;
 
-    function flushRingBatch() {
-      if (!activeRoom || pendingBatch <= 0) return;
-      const toSend = pendingBatch;
-      pendingBatch = 0;
-      batchTimer = null;
-      const statusEl = document.getElementById("owner-status");
-      statusEl.innerText = "Sending +" + toSend + " rings to Pet... :3";
+    async function flushRingPipeline() {
+      if (isFlushing || !activeRoom || pendingBatch <= 0) return;
+      isFlushing = true;
 
-      fetch(API_BASE + "?room=" + activeRoom, {
-        method: "POST",
-        body: "RING:" + toSend
-      })
-      .then(() => {
-        statusEl.innerText = "Bell rung (+" + toSend + ")! Click or press keybind anytime :3";
-      })
-      .catch(() => {
-        statusEl.innerText = "Error sending ring! Try again :3";
-      });
+      while (pendingBatch > 0 && activeRoom) {
+        const toSend = pendingBatch;
+        pendingBatch = 0;
+        const statusEl = document.getElementById("owner-status");
+        statusEl.innerText = "Sending +" + toSend + " rings to Pet... :3";
+
+        try {
+          await fetch(API_BASE + "?room=" + activeRoom, {
+            method: "POST",
+            body: "RING:" + toSend
+          });
+          statusEl.innerText = "Bell rung (+" + toSend + ")! Click or press keybind anytime :3";
+        } catch (e) {
+          pendingBatch += toSend;
+          statusEl.innerText = "Retrying ring sync... :3";
+          await new Promise(r => setTimeout(r, 120));
+        }
+
+        if (pendingBatch > 0) {
+          await new Promise(r => setTimeout(r, 35));
+        }
+      }
+
+      isFlushing = false;
     }
 
     function ringBell(amount = 1) {
@@ -1303,7 +1454,7 @@
       if (!activeRoom) return;
 
       bellBtn.classList.add("pressed");
-      setTimeout(() => bellBtn.classList.remove("pressed"), 90);
+      setTimeout(() => bellBtn.classList.remove("pressed"), 70);
 
       sessionRings += amount;
       userData.sentRings += amount;
@@ -1322,10 +1473,9 @@
       if (newlyUnlocked) renderCombos();
 
       pendingBatch += amount;
-      if (!batchTimer) {
-        batchTimer = setTimeout(flushRingBatch, 40);
-      }
+      flushRingPipeline();
     }
+
     if (isTauriApp) {
       document.getElementById("pin-btn").classList.remove("hidden");
       document.getElementById("keybind-title").innerText = "Global In-Game Keybind :3";
@@ -1440,7 +1590,7 @@
       }
     });
 
-    window.addEventListener("mousedown", (event) => {
+    window.addEventListener("pointerdown", (event) => {
       if (activeRole !== "owner") return;
 
       if (isListeningForBind) {
